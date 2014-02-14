@@ -20,7 +20,8 @@
         mapstraction.addSmallControls();
         
         cpts = [];
-        mapstraction.addEventListener('click', function(clickpoint) {
+        mapstraction.click.addHandler(function(ty, src, args) {
+	  	  var clickpoint = args.location;
           cpts.push(clickpoint);
           if (cpts.length == 1) {
             var mk = new mxn.Marker(clickpoint);

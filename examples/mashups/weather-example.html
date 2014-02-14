@@ -1,0 +1,31 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Weather Map Mashup</title>
+    <style>
+      div#mymap {
+        width: 800px;
+        height: 450px;
+      }
+
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+    <script src="mapstraction.js"></script>
+    <script type="text/javascript">
+      var mapstraction;
+      var center = new LatLonPoint(38,-98);
+      var zoom = 4;
+
+      function create_map() {
+        mapstraction = new Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(center, zoom);
+        mapstraction.addControls({"zoom":"large"});
+
+      }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+
+  </body>
+  </html>

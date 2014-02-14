@@ -1,0 +1,26 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Zoom Controls</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=YOURKEY"
+    type="text/javascript"></script>
+    <script src="mxn.js?(google)"></script>
+    <style>
+      div#mymap {
+        width: 400px;
+        height: 350px;
+      }
+    </style>
+    <script type="text/javascript">
+      var mapstraction;
+      function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(
+           new mxn.LatLonPoint(45.559242, -122.636467), 15);
+        mapstraction.addSmallControls();
+      }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

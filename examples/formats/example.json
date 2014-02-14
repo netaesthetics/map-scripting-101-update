@@ -1,0 +1,4 @@
+{"child": [
+  {"attributes": {"name": "first"}}, 
+  {"attributes": {"name": "second"}, "grandchild": "text goes here"}
+]}

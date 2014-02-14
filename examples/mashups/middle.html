@@ -1,0 +1,195 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Coffee in the Middle</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="js/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 600px;
+        height: 450px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var gdir;
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.addControls({"zoom":"large"});
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(40, -92), 3);
+        
+		// Google-specific code for driving directions
+		gdir = new GDirections();
+	    GEvent.addListener(gdir, "load", findMidpoint);
+    	GEvent.addListener(gdir, "error", handleErrors);
+    }
+	function findMidpoint() {
+	    var midicon = 'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|00FF00';
+		var gpoly = gdir.getPolyline();
+		
+		// Find all points in Polyline
+		var allpts = [];
+		var vertexct = gpoly.getVertexCount();
+		for (var i=0; i < vertexct; i++) {
+		  var gpt = gpoly.getVertex(i);
+		  var pt = new mxn.LatLonPoint(gpt.lat(), gpt.lng());
+		  allpts.push(pt);
+		}
+		
+		// Add polyline to map
+		mapstraction.addPolyline(new mxn.Polyline(allpts));
+		mapstraction.autoCenterAndZoom();
+		
+		// Determine distance needed
+		var totaldist = gdir.getDistance().meters / 1000; // driving distance in km
+		var halfdist = totaldist / 2;
+		var distsofar = 0;
+		
+		// Loop through points, adding up distance so far
+		for (var i=1; i < allpts.length; i++) {
+		  var pt1 = allpts[i-1];
+		  var pt2 = allpts[i];
+		  var thisdist = pt1.distance(pt2);
+		  if ((distsofar + thisdist) < halfdist) {
+		    distsofar += thisdist;
+		  }
+		  else {
+		    var distneeded = halfdist - distsofar;
+		    
+		    var bearing = get_bearing(pt1, pt2);
+		    var midpt = get_destination(pt1, distneeded, bearing);
+		    var midmk = new mxn.Marker(midpt);
+midmk.setIcon(midicon);
+		    mapstraction.addMarker(midmk);
+		    
+		    // Determine search radius
+		    var radius = 1+ totaldist / 20;
+		    if (radius > 25) {
+		      radius = 25;
+		    }
+		    loadYelp("coffee", midpt, radius);
+
+		    break; // stop the loop, we're halfway!
+		  }
+		}
+	}
+	
+	function goDir() {
+	  var start = document.getElementById('start').value;
+	  var end = document.getElementById('end').value;
+
+      // Remove Markers and Polylines
+      mapstraction.removeAllMarkers();
+      mapstraction.removeAllPolylines();
+      
+      // Google-specific: load directions
+      var diropt = {getPolyline: true};
+      gdir.load("from: " + start + " to: " + end, diropt);
+	}
+
+
+function handleErrors(){
+   if (gdir.getStatus().code == G_GEO_UNKNOWN_ADDRESS)
+     alert("No corresponding geographic location could be found for one of the specified addresses. This may be due to the fact that the address is relatively new, or it may be incorrect.\nError code: " + gdir.getStatus().code);
+   else if (gdir.getStatus().code == G_GEO_SERVER_ERROR)
+     alert("A geocoding or directions request could not be successfully processed, yet the exact reason for the failure is not known.\n Error code: " + gdir.getStatus().code);
+   
+   else if (gdir.getStatus().code == G_GEO_MISSING_QUERY)
+     alert("The HTTP q parameter was either missing or had no value. For geocoder requests, this means that an empty address was specified as input. For directions requests, this means that no query was specified in the input.\n Error code: " + gdir.getStatus().code);
+
+//   else if (gdir.getStatus().code == G_UNAVAILABLE_ADDRESS)  <--- Doc bug... this is either not defined, or Doc is wrong
+//     alert("The geocode for the given address or the route for the given directions query cannot be returned due to legal or contractual reasons.\n Error code: " + gdir.getStatus().code);
+     
+   else if (gdir.getStatus().code == G_GEO_BAD_KEY)
+     alert("The given key is either invalid or does not match the domain for which it was given. \n Error code: " + gdir.getStatus().code);
+
+   else if (gdir.getStatus().code == G_GEO_BAD_REQUEST)
+     alert("A directions request could not be successfully parsed.\n Error code: " + gdir.getStatus().code);
+    
+   else alert("An unknown error occurred.");
+   
+}
+
+function loadYelp(kw, loc, rad) {
+  var url = "http://api.yelp.com/business_review_search";
+  url += "?ywsid=KThzbeyMbC3Z7iMzNujutw";
+  url += "&num_biz_requested=10";
+  url += "&term=" + kw;
+  url += "&lat=" + loc.lat + "&long=" + loc.lon + "&radius=" + rad;
+  url += "&callback=?";
+  
+  $.getJSON(url, function(x) {
+    if (x.message.text == "OK") {
+      if (x.businesses.length != 0) {
+        var res = x.businesses;
+
+		var allpts = [];
+        for (var i = 0; i < res.length; i++) {
+          var place = res[i];
+          var html = "<strong>" + place.name + "</strong><br />" + place.address1 + "<br />" + place.city + ", " + place.state;
+          var thisloc = new mxn.LatLonPoint(place.latitude, place.longitude);
+          allpts.push(thisloc);
+          var mk = new mxn.Marker(thisloc);
+          mk.setInfoBubble(html);
+          mapstraction.addMarker(mk);
+        }
+        mapstraction.centerAndZoomOnPoints(allpts);
+      }
+    }
+  });
+}
+
+
+
+/*** Helper functions ***/    
+
+    function get_destination(pt, dist, bearing) {
+      var R = 6371; // radius of earth (km)
+      var lat1 = degrees_to_radians(pt.lat);
+      var lon1 = degrees_to_radians(pt.lon);
+      bearing = degrees_to_radians(bearing);
+
+  var lat2 = Math.asin( Math.sin(lat1)*Math.cos(dist/R) + 
+                        Math.cos(lat1)*Math.sin(dist/R)*Math.cos(bearing) );
+  var lon2 = lon1 + Math.atan2(Math.sin(bearing)*Math.sin(dist/R)*Math.cos(lat1), 
+                               Math.cos(dist/R)-Math.sin(lat1)*Math.sin(lat2));
+  lon2 = (lon2+Math.PI)%(2*Math.PI) - Math.PI;  // normalise to -180...+180
+  
+  lat2 = radians_to_degrees(lat2);
+  lon2 = radians_to_degrees(lon2);
+
+      return new mxn.LatLonPoint(lat2, lon2);
+    }
+    function get_bearing(pt1, pt2) {
+      var lat1 = degrees_to_radians(pt1.lat);
+      var lat2 = degrees_to_radians(pt2.lat);
+      var lon_diff = degrees_to_radians(pt2.lon - pt1.lon);
+
+      var y = Math.sin(lon_diff) * Math.cos(lat2);
+      var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon_diff);
+      var bearing = Math.atan2(y, x);
+      return (radians_to_degrees(bearing)+360) % 360;
+    }
+    
+    function degrees_to_radians(deg) {
+      return deg * Math.PI / 180;
+    }
+    function radians_to_degrees(rad) {
+      return rad * 180 / Math.PI;
+    }
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <form id="myform" onSubmit="goDir();return false;">
+      Your location: <input type="text" id="start" />
+      Friend's location: <input type="text" id="end" />
+      <input type="submit" value="Go" />
+    </form>
+    <div id="mymap"></div>
+  </body>
+</html>

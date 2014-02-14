@@ -1,0 +1,37 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Draw a Polyline</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var georgias = [new mxn.LatLonPoint(33.754487, -84.389663), new mxn.LatLonPoint(41.709981, 44.792998)];
+    var lombard = [new mxn.LatLonPoint(37.80201075795017, -122.41963505744934), new mxn.LatLonPoint(37.802036189584236, -122.41946339607239), new mxn.LatLonPoint(37.80212096163452, -122.41935610771179), new mxn.LatLonPoint(37.80201075795017, -122.41918444633484), new mxn.LatLonPoint(37.80213791603289, -122.41903424263), new mxn.LatLonPoint(37.80205314400207, -122.41884112358093), new mxn.LatLonPoint(37.802197256396575, -122.41870164871216), new mxn.LatLonPoint(37.80208705282608, -122.41851925849915), new mxn.LatLonPoint(37.8022311651544, -122.41840124130249), new mxn.LatLonPoint(37.80212096163452, -122.4181866645813), new mxn.LatLonPoint(37.802214210777436, -122.41799354553223)];
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(
+          new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
+        mapstraction.addSmallControls();
+        //var poly = new mxn.Polyline(lombard);
+        var poly = new mxn.Polyline(lombard);
+        //poly.setColor('FF00FF');
+        //poly.setWidth(5);
+        poly.addData({color: 'F0F', width: 5});
+        mapstraction.addPolyline(poly);
+        mapstraction.autoCenterAndZoom();
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

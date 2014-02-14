@@ -1,0 +1,108 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Handle Map loaded event</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+	<script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google,yahoo)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction, mainmk;
+    function create_map() {
+   	    mapstraction = new mxn.Mapstraction('mymap', 'yahoo');
+
+		mapstraction.load.addHandler(function(event_name, event_source, event_args) {
+			alert('loaded!');
+			//mainmk.openBubble();
+		});
+
+		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 11);
+		mapstraction.addLargeControls();
+		mainmk = new mxn.Marker(new mxn.LatLonPoint(37.7740486,-122.4101883));
+		mainmk.setInfoBubble('Look at me!');
+		mapstraction.addMarker(mainmk);
+				
+		return;
+		
+        for (i=1; i<=500; i++)
+        {
+        	var rndlatlon = get_random_by_bounds(mapstraction.getBounds());
+    	    var marker = new mxn.Marker(rndlatlon);
+    	    marker.setInfoBubble('This is marker #' + i);
+    	    mapstraction.addMarker(marker);
+        }
+        mapstraction.autoCenterAndZoom();
+    }
+    function get_random_by_bounds(bounds) {
+      var lat = bounds.sw.lat + (Math.random() * (bounds.ne.lat - bounds.sw.lat));
+      var lon = bounds.sw.lon + (Math.random() * (bounds.ne.lon - bounds.sw.lon));
+      return new mxn.LatLonPoint(lat, lon);
+    }
+
+// DEBUGGING
+function inspect(obj, maxLevels, level)
+{
+  var str = '', type, msg;
+
+    // Start Input Validations
+    // Don't touch, we start iterating at level zero
+    if(level == null)  level = 0;
+
+    // At least you want to show the first level
+    if(maxLevels == null) maxLevels = 1;
+    if(maxLevels < 1)     
+        return '<font color="red">Error: Levels number must be > 0</font>';
+
+    // We start with a non null object
+    if(obj == null)
+    return '<font color="red">Error: Object <b>NULL</b></font>';
+    // End Input Validations
+
+    // Each Iteration must be indented
+    str += '<ul>';
+
+    // Start iterations for all objects in obj
+    for(property in obj)
+    {
+      try
+      {
+          // Show "property" and "type property"
+          type =  typeof(obj[property]);
+          str += '<li>(' + type + ') ' + property + 
+                 ( (obj[property]==null)?(': <b>null</b>'):('')) + '</li>';
+
+          // We keep iterating if this property is an Object, non null
+          // and we are inside the required number of levels
+          if((type == 'object') && (obj[property] != null) && (level+1 < maxLevels))
+          str += inspect(obj[property], maxLevels, level+1);
+      }
+      catch(err)
+      {
+        // Is there some properties in obj we can't access? Print it red.
+        if(typeof(err) == 'string') msg = err;
+        else if(err.message)        msg = err.message;
+        else if(err.description)    msg = err.description;
+        else                        msg = 'Unknown';
+
+        str += '<li><font color="red">(Error) ' + property + ': ' + msg +'</font></li>';
+      }
+    }
+
+      // Close indent
+      str += '</ul>';
+
+    return str;
+}
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

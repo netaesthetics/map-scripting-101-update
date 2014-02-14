@@ -1,0 +1,27 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Earthquake GeoRSS Map</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+    <script src="mapstraction.js"></script>
+    <style>
+    div#mymap {
+        width: 550px;
+        height: 450px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    function create_map() {
+        mapstraction = new Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(new LatLonPoint(0, 0), 0);
+        mapstraction.addControls({zoom: 'large'});
+		mapstraction.addOverlay("http://earthquake.usgs.gov/eqcenter/catalogs/7day-M2.5.xml", true);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

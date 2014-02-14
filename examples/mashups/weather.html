@@ -1,0 +1,114 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Weather Map Mashup</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+    <script type="text/javascript" charset="utf-8" src="js/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 800px;
+        height: 450px;
+    }
+    div#forecast {
+    	width: 200px;
+    	height: 400px;
+    	background-color: #fff;
+    	position: relative;
+    	top: -435px;
+    	left: 550px;
+    	padding: 10px;
+    }
+    </style>
+    <script type="text/javascript">
+      var weatherids = [
+        "USIL0225", // Chicago
+        "USTX0327", // Dallas
+        "USCO0105", // Denver
+        "USFL0316", // Miami
+        "USMN0503", // Minneapolis
+        "USTN0357", // Nashville
+        "USNY0996", // New York City
+        "USAZ0166", // Phoenix
+        "USMO0787", // Saint Louis
+        "USCA0987", // San Francisco
+        "USWA0395"  // Seattle
+      ];
+
+
+    var mapstraction;
+    var center = new mxn.LatLonPoint(38,-98);
+    var zoom = 4;
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(center, zoom);
+        mapstraction.addControls({"zoom":"large"});
+        $('#forecast').hide();
+        var pipeid = "Sbcb8u8J3hGNdOcopgt1Yg";
+        for (var i=0; i<weatherids.length; i++) {
+          var pipeurl = "http://pipes.yahoo.com/pipes/pipe.run?_id=" + pipeid;
+          pipeurl += "&_render=json&location=" + weatherids[i] + "&_callback=?";
+          jQuery.getJSON(pipeurl, add_weather);
+        }
+	}
+	
+	function add_weather(data)
+	{
+		jQuery.each(data.value.items, function(i, item) {
+			var lat = item["geo:lat"];
+			var lon = item["geo:long"];
+			var code = item["yweather:condition"].code;
+			var desc = item["description"];
+			var imgsrc = condition_image(code);
+			
+			add_marker({"lat":lat, "lon":lon, "code":code, "desc":desc, "imgsrc":imgsrc});
+		})
+	}
+	function add_marker(options)
+	{
+        var marker = new mxn.Marker(new mxn.LatLonPoint(options["lat"], options["lon"]));
+        marker.setIcon(options["imgsrc"], [52,52]);
+        marker.setShadowIcon('blankshadow.png', [0,0]);
+        marker.setInfoDiv(options["desc"] + "<p><a href=\"javascript:return_center()\"><img src=\"usmap.png\" border=\"0\" alt=\"Return to full map\" /></a></p>", "forecast");
+		marker.setAttribute("point", marker.location);
+		
+        mapstraction.addMarker(marker);
+        //var micon = marker.proprietary_marker.getIcon();
+        //micon.imageMap = [0, 0, marker.iconSize[0], 0, marker.iconSize[0], marker.iconSize[1], 0, marker.iconSize[1], 0, 0];
+        marker.click.addHandler(marker_clicked);
+        check_markers();
+	}
+	function marker_clicked(event_name, event_source, event_args) {
+		mapstraction.setCenterAndZoom(event_source.location, 6);
+        var bounds = mapstraction.getBounds();
+  		var diff = ((bounds.ne.lon - bounds.sw.lon)/4);
+  		mapstraction.setCenter(
+    		new mxn.LatLonPoint(mapstraction.getCenter().lat, bounds.ne.lon - diff));
+  		$('#forecast').show();
+	}
+	function check_markers()
+	{
+		// Waits for all markers to be loaded before doing something
+		if (mapstraction.markers.length == weatherids.length) {
+			//mapstraction.autoCenterAndZoom();
+			//center = mapstraction.getCenter();
+			//zoom = mapstraction.getZoom();
+		}
+	}
+	function return_center() {
+		mapstraction.setCenterAndZoom(center, zoom);
+		$('#forecast').hide();
+	}
+	function condition_image(code)
+	{
+		return "http://l.yimg.com/a/i/us/we/52/" + code + ".gif";
+	}
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+   	<div id="forecast"></div>
+  </body>
+</html>

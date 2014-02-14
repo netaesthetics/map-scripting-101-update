@@ -1,0 +1,65 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Filter Out Markers by Data</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var marker;
+        
+    function create_map() {
+   	    mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.73561800514664, -122.43818721737233), 12);
+		mapstraction.addLargeControls();
+		
+		// Add five markers
+		marker = new mxn.Marker(new mxn.LatLonPoint(37.705742053993745, -122.45184750623906));
+		marker.setAttribute('price', '1000');
+		marker.setInfoBubble("1000");
+    	mapstraction.addMarker(marker);
+
+		marker = new mxn.Marker(new mxn.LatLonPoint(37.74215698054232, -122.44029327115346));
+		marker.setAttribute('price', '1500');
+		marker.setInfoBubble("1500");
+    	mapstraction.addMarker(marker);
+
+		marker = new mxn.Marker(new mxn.LatLonPoint(37.7209117283927, -122.45931546420135));
+		marker.setAttribute('price', '2000');
+		marker.setInfoBubble("2000");
+    	mapstraction.addMarker(marker);
+
+		marker = new mxn.Marker(new mxn.LatLonPoint(37.76549395629954, -122.41705897054334));
+		marker.setAttribute('price', '500');
+		marker.setInfoBubble("500");
+    	mapstraction.addMarker(marker);
+
+		marker = new mxn.Marker(new mxn.LatLonPoint(37.72453005365435, -122.44206602442459));
+		marker.setAttribute('price', '900');
+		marker.setInfoBubble("900");
+    	mapstraction.addMarker(marker);
+    }
+    function create_filter(num, method) {
+    	mapstraction.removeAllFilters();
+    	mapstraction.addFilter('price', method, num);
+    	mapstraction.doFilter();
+    }
+    function clear_filters() {
+    	mapstraction.removeAllFilters();
+    	mapstraction.doFilter();
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+    <a href="javascript:create_filter(1000, 'ge');">Keep &gt;=1000</a>
+    <a href="javascript:create_filter(1000, 'le');">Keep &lt;=1000</a>
+    <a href="javascript:clear_filters();">no filters</a>
+  </body>
+</html>

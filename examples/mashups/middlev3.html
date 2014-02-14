@@ -1,0 +1,175 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Coffee in the Middle</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 600px;
+        height: 450px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var gdir;
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.addControls({"zoom":"large"});
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(40, -92), 3);
+
+		// Google-specific code for driving directions
+        gdir = new google.maps.DirectionsService();
+    }
+	function findMidpoint(allpts, totaldist) {
+	    var midicon = 'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|00FF00';
+
+		// Determine distance needed
+		var halfdist = totaldist / 2;
+		var distsofar = 0;
+		
+		// Loop through points, adding up distance so far
+		for (var i=1; i < allpts.length; i++) {
+		  var pt1 = allpts[i-1];
+		  var pt2 = allpts[i];
+		  var thisdist = pt1.distance(pt2);
+		  if ((distsofar + thisdist) < halfdist) {
+		    distsofar += thisdist;
+		  }
+		  else {
+		    var distneeded = halfdist - distsofar;
+		    
+		    var bearing = get_bearing(pt1, pt2);
+		    var midpt = get_destination(pt1, distneeded, bearing);
+		    var midmk = new mxn.Marker(midpt);
+            midmk.setIcon(midicon, [21,34]);
+		    mapstraction.addMarker(midmk);
+		    
+		    // Determine search radius
+		    var radius = 1+ totaldist / 20;
+		    if (radius > 25) {
+		      radius = 25;
+		    }
+		    loadYelp("coffee", midpt, radius);
+
+		    break; // stop the loop, we're halfway!
+		  }
+		}
+	}
+	
+	function goDir() {
+	  var start = document.getElementById('start').value;
+	  var end = document.getElementById('end').value;
+
+      // Remove Markers and Polylines
+      mapstraction.removeAllMarkers();
+      mapstraction.removeAllPolylines();
+      
+      // Google-specific: load directions
+	    var diropt = {
+          origin: start, 
+          destination: end,
+          travelMode: google.maps.DirectionsTravelMode.DRIVING
+	    };
+	    gdir.route(diropt, addDir);
+	}
+	function addDir(response, status) {
+	  if (status == google.maps.DirectionsStatus.OK) {
+	    var gpts = response.routes[0].overview_path;
+	    var polypts = [];
+	    for (var i=0; i<gpts.length; i++) {
+	      polypts.push(new mxn.LatLonPoint(gpts[i].lat(), gpts[i].lng()));
+	    }
+	    // Add polyline to map
+	    var poly = new mxn.Polyline(polypts);
+	    mapstraction.addPolyline(poly);
+	    mapstraction.autoCenterAndZoom();
+	    // Find distance
+	    var dist = response.routes[0].legs[0].distance.value / 1000;
+	    // Find midpoint
+	    findMidpoint(polypts, dist);
+	  }
+	}
+
+function loadYelp(kw, loc, rad) {
+  var url = "http://api.yelp.com/business_review_search";
+  url += "?ywsid=KThzbeyMbC3Z7iMzNujutw";
+  url += "&num_biz_requested=10";
+  url += "&term=" + kw;
+  url += "&lat=" + loc.lat + "&long=" + loc.lon + "&radius=" + rad;
+  url += "&callback=?";
+  
+  $.getJSON(url, function(x) {
+    if (x.message.text == "OK") {
+      if (x.businesses.length != 0) {
+        var res = x.businesses;
+
+		var allpts = [];
+        for (var i = 0; i < res.length; i++) {
+          var place = res[i];
+          var html = "<strong>" + place.name + "</strong><br />" + place.address1 + "<br />" + place.city + ", " + place.state;
+          var thisloc = new mxn.LatLonPoint(place.latitude, place.longitude);
+          allpts.push(thisloc);
+          var mk = new mxn.Marker(thisloc);
+          mk.setInfoBubble(html);
+          mapstraction.addMarker(mk);
+        }
+        mapstraction.centerAndZoomOnPoints(allpts);
+      }
+    }
+  });
+}
+
+
+
+/*** Helper functions ***/    
+
+    function get_destination(pt, dist, bearing) {
+      var R = 6371; // radius of earth (km)
+      var lat1 = degrees_to_radians(pt.lat);
+      var lon1 = degrees_to_radians(pt.lon);
+      bearing = degrees_to_radians(bearing);
+
+  var lat2 = Math.asin( Math.sin(lat1)*Math.cos(dist/R) + 
+                        Math.cos(lat1)*Math.sin(dist/R)*Math.cos(bearing) );
+  var lon2 = lon1 + Math.atan2(Math.sin(bearing)*Math.sin(dist/R)*Math.cos(lat1), 
+                               Math.cos(dist/R)-Math.sin(lat1)*Math.sin(lat2));
+  lon2 = (lon2+Math.PI)%(2*Math.PI) - Math.PI;  // normalise to -180...+180
+  
+  lat2 = radians_to_degrees(lat2);
+  lon2 = radians_to_degrees(lon2);
+
+      return new mxn.LatLonPoint(lat2, lon2);
+    }
+    function get_bearing(pt1, pt2) {
+      var lat1 = degrees_to_radians(pt1.lat);
+      var lat2 = degrees_to_radians(pt2.lat);
+      var lon_diff = degrees_to_radians(pt2.lon - pt1.lon);
+
+      var y = Math.sin(lon_diff) * Math.cos(lat2);
+      var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon_diff);
+      var bearing = Math.atan2(y, x);
+      return (radians_to_degrees(bearing)+360) % 360;
+    }
+    
+    function degrees_to_radians(deg) {
+      return deg * Math.PI / 180;
+    }
+    function radians_to_degrees(rad) {
+      return rad * 180 / Math.PI;
+    }
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <form id="myform" onSubmit="goDir();return false;">
+      Your location: <input type="text" id="start" />
+      Friend's location: <input type="text" id="end" />
+      <input type="submit" value="Go" />
+    </form>
+    <div id="mymap"></div>
+  </body>
+</html>

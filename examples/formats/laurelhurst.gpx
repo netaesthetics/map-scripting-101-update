@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" creator="Sunday Morning Rides" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <trk>
+    <trkseg>
+      <trkpt lat="45.52127032173489" lon="-122.62611150741577"></trkpt>
+      <trkpt lat="45.521292873028074" lon="-122.62595057487488"></trkpt>
+      <trkpt lat="45.521375561025756" lon="-122.62571454048157"></trkpt>
+      <trkpt lat="45.52145824890192" lon="-122.62533903121948"></trkpt>
+      <trkpt lat="45.52148080011979" lon="-122.62499570846558"></trkpt>
+      <trkpt lat="45.52153341959297" lon="-122.62465238571167"></trkpt>
+      <trkpt lat="45.52156348784128" lon="-122.62438416481018"></trkpt>
+      <trkpt lat="45.52151086839619" lon="-122.62433052062988"></trkpt>
+      <trkpt lat="45.52145073182729" lon="-122.62438416481018"></trkpt>
+      <trkpt lat="45.52143569767502" lon="-122.62450218200684"></trkpt>
+      <trkpt lat="45.521398112276756" lon="-122.62472748756409"></trkpt>
+      <trkpt lat="45.521322941404925" lon="-122.62486696243286"></trkpt>
+      <trkpt lat="45.5212552875344" lon="-122.62503862380981"></trkpt>
+      <trkpt lat="45.52119515069232" lon="-122.625253200531"></trkpt>
+      <trkpt lat="45.521150048018576" lon="-122.6254141330719"></trkpt>
+      <trkpt lat="45.52114253090274" lon="-122.62561798095703"></trkpt>
+      <trkpt lat="45.52117259935995" lon="-122.62577891349792"></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

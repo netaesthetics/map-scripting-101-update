@@ -1,0 +1,17 @@
+<html>
+<head>
+<script>
+var obj = {"child": [
+  {"attributes": {"name": "first"}}, 
+  {"attributes": {"name": "second"}, "grandchild": "text goes here"}
+]};
+var jtxt = "{\"child\": [{\"attributes\": {\"name\": \"first\"}},{\"attributes\": {\"name\": \"second\"}, \"grandchild\": \"text goes here\"}]}";
+var jobj = eval("("+jtxt+")");
+
+alert(jobj.child[0].attributes.name);
+
+</script>
+</head>
+<body>
+</body>
+</html>

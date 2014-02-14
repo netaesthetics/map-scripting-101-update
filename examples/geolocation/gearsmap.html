@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>Testing Gears</title>
+	<script type="text/javascript" src="gears_init.js"></script>
+	<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google)"></script>
+    <style>
+      div#mymap {
+        width: 400px;
+        height: 350px;
+      }
+    </style>
+
+	<script type="text/javascript">
+	var geo = google.gears.factory.create('beta.geolocation');
+	geo.getCurrentPosition(create_map, function() {});
+
+    function create_map(pos) {
+	  var pt = new mxn.LatLonPoint(pos.coords.latitude, pos.coords.longitude);
+      mapstraction = new mxn.Mapstraction('mymap', 'google');
+      mapstraction.setCenterAndZoom(pt, 15);
+      var marker = new mxn.Marker(pt);
+      marker.setInfoBubble('You Are Here');
+      mapstraction.addMarker(marker);
+      marker.openBubble();
+    }
+	</script>
+</head>
+<body>
+	<div id="mymap"></div>
+</body>
+</html>

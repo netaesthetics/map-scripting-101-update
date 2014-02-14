@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>Find Your Location With JavaScript</title>
+	<script type="text/javascript" src="gears_init.js"></script>
+	<script type="text/javascript" src="http://loki.com/plugin/files/loki.js"></script>
+	<script type="text/javascript">
+	function findLocation()
+	{
+	  get_latlon(foundLocation, noLocation);
+	}
+
+	function get_latlon(results_func, error_func) {
+		// W3C, Geode
+		if (navigator.geolocation) {
+			alert('Finding location with W3C/Geode');
+			navigator.geolocation.getCurrentPosition(
+				function(pos) {
+					var newpos;
+					// Geode
+					if (pos.latitude && pos.longitude) {
+						newpos = {coords: 
+							{latitude: pos.latitude, longitude: pos.longitude}
+						};
+					}
+					// W3C
+					else {
+						newpos = pos;
+					}
+					results_func(newpos);
+				}, error_func);
+			return 1;
+		}
+
+		// Google Gears
+		var geo = google.gears.factory.create('beta.geolocation');
+		if (geo) {
+			alert('Finding location with Gears');
+			geo.getCurrentPosition(
+				function(pos) {
+					var newpos = {coords:
+						{latitude: pos.latitude, longitude: pos.longitude}
+					};
+					results_func(newpos);
+				}, error_func);
+			return 1;
+		}
+
+		// Loki
+		var loki = LokiAPI();
+		if (loki) {
+			alert('Finding location with Loki');
+			loki.onSuccess = function(pos) {
+				var newpos = {coords:
+					{latitude: pos.latitude, longitude: pos.longitude}
+				};
+				results_func(newpos);
+			}
+			loki.onFailure = error_func;
+			loki.setKey('yourkeyhere');
+			loki.requestLocation(true, loki.NO_STREET_ADDRESS_LOOKUP);
+			return 1;
+		}
+
+		// Nothing worked
+		alert('Could not find anything to look for your location');
+		return 0;
+	}
+	function foundLocation(position)
+	{
+	  var lat = position.coords.latitude;
+	  var long = position.coords.longitude;
+	  alert('Found location: ' + lat + ', ' + long);
+	}
+	function noLocation()
+	{
+	  alert('Could not find location');
+	}
+	</script>
+</head>
+<body>
+	<button onclick="findLocation();">Click to find location</button>
+</body>
+</html>

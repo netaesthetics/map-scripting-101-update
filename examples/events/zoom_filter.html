@@ -1,0 +1,53 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Handle zoom change event with filters</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+	<script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction, mainmk;
+    function create_map() {
+   	    mapstraction = new mxn.Mapstraction('mymap', 'google');
+		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 11);
+		mapstraction.addLargeControls();
+
+        for (i=1; i<=50; i++)
+        {
+            var zlevel = 12;
+            if (i % 2 == 0) { // if i is even
+              zlevel = 13;
+            }
+        	var rndlatlon = get_random_by_bounds(mapstraction.getBounds());
+    	    var marker = new mxn.Marker(rndlatlon);
+    	    marker.setAttribute('zoom_level', zlevel);
+    	    marker.setInfoBubble('This is marker #' + i + ', to be shown at zoom level ' + zlevel);
+            mapstraction.addMarker(marker);
+		}
+		mapstraction.changeZoom.addHandler(function(event_name, event_source, event_args) {
+          mapstraction.removeAllFilters();
+          var current_level = mapstraction.getZoom();
+          if (current_level == 12 || current_level == 13) {
+            mapstraction.addFilter('zoom_level', 'eq', current_level);
+          }
+          mapstraction.doFilter();
+		});
+    }
+    function get_random_by_bounds(bounds) {
+      var lat = bounds.sw.lat + (Math.random() * (bounds.ne.lat - bounds.sw.lat));
+      var lon = bounds.sw.lon + (Math.random() * (bounds.ne.lon - bounds.sw.lon));
+      return new mxn.LatLonPoint(lat, lon);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

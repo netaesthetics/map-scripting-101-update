@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<rss version="2.0" xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+<channel>
+
+<title>Yahoo! Weather - Portland, OR</title>
+<link>http://us.rd.yahoo.com/dailynews/rss/weather/Portland__OR/*http://weather.yahoo.com/forecast/97211_f.html</link>
+<description>Yahoo! Weather for Portland, OR</description>
+<language>en-us</language>
+<lastBuildDate>Tue, 24 Mar 2009 4:53 pm PDT</lastBuildDate>
+<ttl>60</ttl>
+<yweather:location city="Portland" region="OR"   country="US"/>
+
+<yweather:units temperature="F" distance="mi" pressure="in" speed="mph"/>
+<yweather:wind chill="55"   direction="270"   speed="14" />
+<yweather:atmosphere humidity="55"  visibility="10"  pressure="30.3"  rising="0" />
+<yweather:astronomy sunrise="7:05 am"   sunset="7:29 pm"/>
+<image>
+<title>Yahoo! Weather</title>
+<width>142</width>
+<height>18</height>
+<link>http://weather.yahoo.com</link>
+<url>http://l.yimg.com/a/i/us/nws/th/main_142b.gif</url>
+</image>
+<item>
+
+<title>Conditions for Portland, OR at 4:53 pm PDT</title>
+<geo:lat>45.52</geo:lat>
+<geo:long>-122.68</geo:long>
+<link>http://us.rd.yahoo.com/dailynews/rss/weather/Portland__OR/*http://weather.yahoo.com/forecast/97211_f.html</link>
+<pubDate>Tue, 24 Mar 2009 4:53 pm PDT</pubDate>
+<yweather:condition  text="Partly Cloudy"  code="30"  temp="55"  date="Tue, 24 Mar 2009 4:53 pm PDT" />
+<description><![CDATA[
+<img src="http://l.yimg.com/a/i/us/we/52/30.gif"/><br />
+<b>Current Conditions:</b><br />
+Partly Cloudy, 55 F<BR />
+<BR /><b>Forecast:</b><BR />
+Tue - Showers. High: 53 Low: 45<br />
+Wed - Rain. High: 50 Low: 40<br />
+<br />
+<a href="http://us.rd.yahoo.com/dailynews/rss/weather/Portland__OR/*http://weather.yahoo.com/forecast/USOR0275_f.html">Full Forecast at Yahoo! Weather</a><BR/>
+(provided by The Weather Channel)<br/>
+]]></description>
+<yweather:forecast day="Tue" date="24 Mar 2009" low="45" high="53" text="Showers" code="11" />
+<yweather:forecast day="Wed" date="25 Mar 2009" low="40" high="50" text="Rain" code="12" />
+<guid isPermaLink="false">97211_2009_03_24_16_53_PDT</guid>
+</item>
+
+</channel>
+</rss><!-- api4.weather.sp1.yahoo.com compressed/chunked Tue Mar 24 17:12:43 PDT 2009 -->

@@ -1,0 +1,54 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Get User Location at Regular Intervals, Update Map</title>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="js/mxn/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+	var okdist = .1; // km
+	var locsfound = 0;
+    var mapstraction, lastloc;
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
+		mapstraction.addLargeControls();
+		lastloc = new mxn.LatLonPoint(0,0);
+
+		navigator.geolocation.watchPosition(foundLocation);
+    }
+	function foundLocation(position)
+	{
+		locsfound++;
+		var lat = position.coords.latitude;
+		var lon = position.coords.longitude;
+		var posll = new mxn.LatLonPoint(lat, lon);
+		//alert('found location: ' + posll + '\nDist: ' + lastloc.distance(posll) + '\nCompared to: ' + okdist);
+		
+		if (lastloc.distance(posll) > okdist) {
+			var mk = new mxn.Marker(posll);
+			var ct = 1 + mapstraction.markers.length;
+            mk.setIcon('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + ct + '|FF3333|000000', [21,32]);
+			mapstraction.addMarker(mk);
+			mapstraction.setCenterAndZoom(posll, 15);
+		}
+		lastloc = posll;
+		document.getElementById("infodiv").innerHTML = "Locations reported: " + locsfound;
+	}
+	function noLocation()
+	{
+	  alert('Could not find location');
+	}
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+	<div id="infodiv"></div>
+  </body>
+</html>

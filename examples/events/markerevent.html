@@ -1,0 +1,37 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Handle events when marker is added/removed</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction, mainmk;
+    function create_map() {
+   	    mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 11);
+		mapstraction.addLargeControls();
+		
+		mapstraction.markerAdded.addHandler(function(event_name, event_source, event_args) {
+          alert('Added marker at ' + event_args.marker.location);
+        });
+		mapstraction.markerRemoved.addHandler(function(event_name, event_source, event_args) {
+          alert('Removed marker at ' + event_args.marker.location);
+        });
+        
+        var mk = new mxn.Marker(new mxn.LatLonPoint(37.7740486,-122.4101883));
+        mapstraction.addMarker(mk);
+        mapstraction.removeMarker(mk);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

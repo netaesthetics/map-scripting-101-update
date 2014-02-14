@@ -1,0 +1,31 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Create a Custom Marker Icon</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var marker;
+    function create_map() {
+        var ll = new mxn.LatLonPoint(37.7740486,-122.4101883);
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.setCenterAndZoom(ll, 15);
+        marker = new mxn.Marker(ll);
+        marker.setIcon('nostarch-logo.png', [27,31]);
+        marker.setShadowIcon('nostarch-shadow.png', [43,31]);
+        marker.setInfoBubble("Look ma, No Starch!");
+        mapstraction.addMarker(marker);        
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

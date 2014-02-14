@@ -1,0 +1,203 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Earthquake Map Mashup</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 550px;
+        height: 450px;
+    }
+    #reset img {
+    	border: 5px solid white;
+    	position: relative;
+    	top: -435px;
+    	left: 430px;
+    }
+    ol#legend {
+    	list-style: none;
+    	margin: 0;
+    	padding: 0;
+    }
+    ol#legend li {
+    	display: inline;
+    	padding-right: 30px;
+    }
+    ol#legend li img {
+    }
+    </style>
+    <script type="text/javascript">
+	var mapstraction;
+	var highlighted = "";
+	var defaultloc = {"point": new mxn.LatLonPoint(14.604847155053898, -177.1875), "zoom": 1};
+	
+	var regions = {
+		"California": new mxn.BoundingBox(30.107117887092357, -136.318359375, 45.61403741135093, -101.162109375),
+		"Alaska": new mxn.BoundingBox(48.516604348867475, 164.35546874999997, 68.49604022839505, -125.33203125),
+		"Latin America": new mxn.BoundingBox(-47.04018214480666, -112.5, 24.84656534821976, -15.8203125),
+		"Southeast Asia": new mxn.BoundingBox(-33.43144133557529, 52.20703125, 39.90973623453719, -167.16796875)
+	};
+	var months = {"1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun", "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"};
+	
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.setMapType(mxn.Mapstraction.HYBRID);
+        mapstraction.addControls({"zoom":"large"});
+        view_world();
+        get_quakes();
+        
+        $("#reset").click(view_world);
+        
+        mapstraction.click.addHandler(function() {
+        	if (highlighted) {
+        		set_region(highlighted);
+        	}
+        });
+        google.maps.event.addListener(mapstraction.getMap(), 'mousemove', check_hover);
+	}
+
+	// Center and zoom setting functions	
+	function view_world() {
+        mapstraction.setCenterAndZoom(defaultloc["point"], defaultloc["zoom"]);		
+        $("#reset").hide();
+	}
+	function set_region(name)
+	{
+		var bounds = regions[name];
+		if (bounds)
+		{
+			mapstraction.setBounds(bounds);
+			$("#reset").show();
+		}
+	}
+
+	// Data and marker functions
+	function get_quakes()
+	{
+        var jsonurl = "http://query.yahooapis.com/v1/public/yql"
+        + "?q=select+*+from+atom+where+url%3D'http%3A%2F%2Fearthquake.usgs.gov"
+        + "%2Feqcenter%2Fcatalogs%2F7day-M2.5.xml'"
+        + "&format=json&diagnostics=true&callback=?";
+
+        jQuery.getJSON(jsonurl, function(data) {
+			jQuery.each(data.query.results.entry, function(i, item) {
+				// Get Lat/Lon point
+				var lltxt = item.point;
+				var llarr = lltxt.split(" ");
+				// Get Richter value
+				var richter = item.title;
+				richter = richter.substr(2, 3);
+				var majorrichter = richter.substring(0, 1);
+				var iconvals = get_icon(majorrichter);
+				// Find link
+				var link;
+				if (item.link[0]) {
+				  link = item.link[0].href;
+				}
+				else {
+				  link = item.link.href;
+				}
+				// Create marker
+				var marker = new mxn.Marker(new mxn.LatLonPoint(llarr[0], llarr[1]));
+				marker.setIcon(iconvals.name, iconvals.size);
+				marker.setShadowIcon('blankshadow.png', [0,0]);
+				var eqdate = item.updated.substr(0, 10);
+				marker.setInfoBubble('<strong>' + item.title + '</strong><p>On ' + eqdate + ' (<a href="' + link + '">more info</a>)</p>');
+				mapstraction.addMarker(marker);
+			});
+        });
+	}
+	function get_icon(majorrichter)
+	{
+		var identifier;
+		var size;
+		if (majorrichter < 4)
+		{
+			identifier = "low";
+			size = [10, 10];
+		}
+		else if (majorrichter == 4)
+		{
+			identifier = "med";
+			size = [15, 15];
+		}
+		else
+		{
+			identifier = "high";
+			size = [20, 20];
+		}
+		return {"name": "richter-" + identifier + ".png", "size": size};
+	}
+	
+	// Region highlight functions
+	function check_hover(google_event) {
+       	pt = new mxn.LatLonPoint(google_event.latLng.lat(), google_event.latLng.lng());
+       	var regionin = find_region(pt);
+       	if (regionin) {
+       	    if (highlighted != regionin) {
+         		highlighted = regionin;
+       			highlight_region(regionin);
+       		}
+       	}
+       	else if (highlighted) {
+       		highlighted = "";
+       		mapstraction.removeAllPolylines();
+       	}	
+	}
+	function find_region(cpt) {
+		for (var k in regions) {
+			if (k != "World") {
+				if (regions[k].contains(cpt)) {
+  					return k;
+				}
+			}
+		}
+		return "";
+	}
+	function abslon(lon)
+	{
+		if (lon < 0) {
+			lon = 360 - Math.abs(lon);
+		}
+		return lon;
+	}
+	function highlight_region(name)
+	{
+		var bounds = regions[name];
+		if (bounds)
+		{
+			var psize = 3;
+			var pdata = {"color": "white"};
+			mapstraction.removeAllPolylines();
+			var poly = BoundingBox_to_Polyline(bounds);
+			mapstraction.addPolylineWithData(poly, pdata);
+		}
+	}
+    function BoundingBox_to_Polyline(box) {
+      var points = [box.sw, new mxn.LatLonPoint(box.ne.lat, box.sw. lon), box.ne, new mxn.LatLonPoint(box.sw.lat, box.ne.lon), new mxn.LatLonPoint(box.sw.lat, box.sw.lon-.0001)];
+      var poly = new mxn.Polyline(points);
+      return poly;
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+   	<a href="#" id="reset"><img src="worldmap.png" /></a>
+   	<ol id="legend">
+   	  <li><img src="richter-low.png" /> 2.5 - 3.9</li>
+   	  <li><img src="richter-med.png" /> 4.0 - 4.9</li>
+   	  <li><img src="richter-high.png" /> 5.0+</li>
+   	</ol>
+   	
+   	<p>
+    <a href="javascript:set_region('California');">California</a>
+    <a href="javascript:set_region('Alaska');">Alaska</a>
+    <a href="javascript:set_region('Southeast Asia');">Southeast Asia</a>
+    <a href="javascript:set_region('Latin America');">Latin America</a>
+    <a href="javascript:view_world();">World</a>
+    </p>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+		<title>Basic Yahoo! Map</title>
+		<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+		<style>
+		div#mymap {
+			width: 400px;
+			height: 400px;
+		}
+		</style>
+		<script type="text/javascript">
+		function create_map()
+		{
+			var map = new YMap(document.getElementById('mymap'));
+			//map.drawZoomAndCenter("40 Ringold St, San Francisco, CA", 3);
+			map.drawZoomAndCenter(new YGeoPoint(37.7740486,-122.4101883), 3);
+		}
+		</script>
+	</head>
+
+	<body onload="create_map()">
+		<div id="mymap"></div>
+	</body>
+</html>

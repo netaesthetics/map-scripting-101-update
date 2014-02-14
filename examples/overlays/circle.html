@@ -1,0 +1,54 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Draw a Circle</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction, cnt;
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(
+          new mxn.LatLonPoint(30.268259, -97.744674), 5);
+        mapstraction.addSmallControls();
+        cnt = mapstraction.getCenter();
+    }
+    function polygon_circle(center, radius) {
+      var rad = new mxn.Radius(center, 10);
+      var poly = rad.getPolyline(mxn.util.milesToKM(radius), '990066');
+      mapstraction.addPolyline(poly);
+      mapstraction.setCenterAndZoom(center, 5);
+    }
+    function overlay_circle(center, radius) {
+      var dist_lat = radius / 69.2;
+      var dist_lon = mxn.util.metresToLon(mxn.util.milesToKM(radius)*1000, center.lat);
+      
+      var n = center.lat + dist_lat;
+      var s = center.lat - dist_lat;
+      var e = center.lon + dist_lon;
+      var w = center.lon - dist_lon;
+      
+      var poly = new mxn.Polyline([new mxn.LatLonPoint(n, w), new mxn.LatLonPoint(n, e), new mxn.LatLonPoint(s, e), new mxn.LatLonPoint(s, w), new mxn.LatLonPoint(n, w)]);
+      //mapstraction.addPolyline(poly);
+      
+      mapstraction.addImageOverlay('searchradius', 'circle.png', 100, w, s, e, n);
+	  //mapstraction.addImageOverlay('searchradius', 'http://chart.apis.google.com/chart?chf=a,s,0000009B|bg,s,67676700|c,s,67676700&chs=400x400&cht=v&chd=s:9______&chdlp=t', 100, w, s, e, n);
+      mapstraction.setCenterAndZoom(center, 5);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+    <a href="javascript:polygon_circle(cnt, 250)">use polygon</a>
+    <br /><a href="javascript:overlay_circle(cnt, 250)">use overlay</a>
+  </body>
+</html>

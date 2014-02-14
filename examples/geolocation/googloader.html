@@ -1,0 +1,30 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Show ClientLocation on a Map</title>
+    <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    google.load("maps", "2");
+    function create_map() {
+    	var pos = google.loader.ClientLocation;
+        var ll = new mxn.LatLonPoint(pos.latitude, pos.longitude);
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(ll, 10);
+        marker = new mxn.Marker(ll);
+        // marker options will go here
+        mapstraction.addMarker(marker);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

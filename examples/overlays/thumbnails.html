@@ -1,0 +1,41 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Plot thumbnails</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.setCenterAndZoom(
+          new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
+        mapstraction.addSmallControls();
+        plot_thumbnail(new mxn.LatLonPoint(28.5388, -81.3774), 'http://farm4.static.flickr.com/3264/2421383748_c1d1cbd521_s.jpg', 'http://farm4.static.flickr.com/3264/2421383748_c1d1cbd521_m.jpg', 240, 160, 'http://www.flickr.com/photos/kamoteus/2421383748/');
+
+        plot_thumbnail(new mxn.LatLonPoint(28.6646, -80.733), 'http://farm1.static.flickr.com/253/461692550_a0cc6d1d6c_s.jpg', 'http://farm1.static.flickr.com/253/461692550_a0cc6d1d6c_m.jpg', 178, 240, 'http://www.flickr.com/photos/yeowatzup/461692550/');
+
+        plot_thumbnail(new mxn.LatLonPoint(28.4736, -81.4651), 'http://farm3.static.flickr.com/2578/3769139951_954a782886_s.jpg', 'http://farm3.static.flickr.com/2578/3769139951_954a782886_m.jpg', 240, 180, 'http://www.flickr.com/photos/lancerrevolution/3769139951/');
+
+		mapstraction.autoCenterAndZoom();
+    }
+    function plot_thumbnail(pt, thumbimg, smallimg, smallw, smallh, link) {
+    	var mk = new mxn.Marker(pt);
+    	mk.setIcon(thumbimg, [50, 50]);
+    	mk.setShadowIcon('outline.png', [52, 52]);
+    	mk.setInfoBubble('<a href=\"' + link + '\"><img src=\"' + smallimg + '\" width=\"' + smallw + '\" height=\"' + smallh + '\" /></a>');
+    	mapstraction.addMarker(mk);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

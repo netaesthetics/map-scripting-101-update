@@ -1,0 +1,104 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Auto-swapping Mapstraction Map</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3,yahoo,cloudmade)"></script>
+    <style>
+    div.map {
+        width: 600px;
+        height: 550px;
+    }
+    </style>
+    <script type="text/javascript">
+    var cloudmade_key = "71879a39b2a9522ca35aed0c021462b7";
+    var mapstraction;
+    var checkbounds = [
+      // Central Cambridge
+      new mxn.BoundingBox(52.1873205529778, 0.09063720703125, 52.22855646954722, 0.1696014404296875),
+      // Saffron Walden
+      new mxn.BoundingBox(51.99095868430135, 0.19123077392578125, 52.049059601183295, 0.29422760009765625)
+    ];
+
+    var urban = 'cloudmade';
+    var rural = 'googlev3';
+    var justswapped = false;
+    
+    //urban = 'googlev3';
+    //rural = 'cloudmade';
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('urbanmap', urban);
+        mapstraction.addLargeControls();
+        mapstraction.addMapTypeControls();
+        mapstraction.setCenterAndZoom(
+          new mxn.LatLonPoint(52.205082,0.125313), 14);
+
+        var mk = new mxn.Marker(new mxn.LatLonPoint(52.205082,0.125313));
+        mk.setInfoBubble('Howdy!');
+        mapstraction.addMarker(mk);
+
+        mapstraction.changeZoom.addHandler(function(){
+          check_swap();
+        }, this);
+        mapstraction.endPan.addHandler(function(){
+          check_swap();
+        }, this);
+    }
+    function check_swap(force) {
+      // Stops from checking swap two times in a row due to MXN swap code, which sets zoom (triggering another event)
+      if (!justswapped) {
+        // Google V3 does not update Bounds until after zoom event, so we return after short delay
+        if (!force) {
+          setTimeout("check_swap(true);", 100);
+          return false;
+        }
+
+        var mapbounds = mapstraction.getBounds();
+        var inUrban;
+        var swapTo;
+        var mapName;
+
+		// Sets variables based on which map is currently showing      
+        switch (mapstraction.api) {
+          // Urban will switch to rural
+          case(urban):
+            inUrban = false; // for bounds comparison -- NOT inUrban
+            swapTo = rural;
+            mapName = "ruralmap";
+          break;
+          // And rural will switch to urban
+          case(rural):
+            inUrban = true; // for bounds comparison -- inUrban
+            swapTo = urban;
+            mapName = "urbanmap";
+          break;
+        }
+        // If we match 
+        if (boundsInBounds(mapbounds, checkbounds) == inUrban) {
+          justswapped = true; // Ensure we won't run check_swap two times in a row
+          setTimeout("justswapped=false;", 100); // Ensure we'll be able to run check_swap next time we want to
+          mapstraction.swap(mapName, swapTo); // Perform actual swap
+        }
+      }
+    }
+    function boundsInBounds(smaller, larger) {
+      if (!(larger instanceof Array)) {
+        larger = [larger];
+      }
+      for (var i=0; i<larger.length; i++) {
+        if (larger[i].contains(smaller.sw) && larger[i].contains(smaller.ne)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div class="map" id="urbanmap"></div>
+    <div class="map" id="ruralmap" style="display: none"></div>
+  </body>
+</html>

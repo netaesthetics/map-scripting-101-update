@@ -1,0 +1,50 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Earthquake Map Mashup</title>
+    <style>
+      div#mymap {
+        width: 550px;
+        height: 450px;
+      }
+      img#reset {
+        border: 5px solid white;
+        position: relative;
+        top: -435px;
+        left: 430px;
+      }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+    <script src="mapstraction.js"></script>
+    <script type="text/javascript">
+      var mapstraction;
+      var defaultloc = {"point": new LatLonPoint(14.604847155053898, -177.1875), "zoom": 1};
+      var regions = {
+        "California": [30.107117887092357, -136.318359375, 45.61403741135093, -101.162109375],
+        "Alaska": [48.516604348867475, 164.35546874999997, 68.49604022839505, -125.33203125],
+        "Latin America": [-47.04018214480666, -112.5, 24.84656534821976, -15.8203125],
+        "Southeast Asia": [-33.43144133557529, 52.20703125, 39.90973623453719, -167.16796875]
+      };
+      var months = {"1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun", "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"};
+
+      function create_map() {
+        mapstraction = new Mapstraction('mymap', 'google');
+        mapstraction.setMapType(Mapstraction.HYBRID);
+        mapstraction.addControls({"zoom":"large"});
+        view_world();
+
+      }
+
+	// Center and zoom setting functions	
+	function view_world() {
+        mapstraction.setCenterAndZoom(defaultloc["point"], defaultloc["zoom"]);		
+        $("#reset").hide();
+	}
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+    <img id="reset" src="worldmap.png" />
+  </body>
+</html>

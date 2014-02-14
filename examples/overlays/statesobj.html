@@ -1,0 +1,40 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Color in a State</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google)"></script>
+    <script type="text/javascript" charset="utf-8" src="statesobj.js"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(
+          new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
+        mapstraction.addSmallControls();
+        
+		for (var k in statesobj) {
+			color_state(statesobj[k], '00ff00');			
+		}
+        mapstraction.autoCenterAndZoom();
+    }
+    function color_state(pts, color) {
+    	var poly = new mxn.Polyline(pts);
+    	poly.addData({opacity: 0.75, fillColor: color, width: 1, closed: true});
+    	mapstraction.addPolyline(poly);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

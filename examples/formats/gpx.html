@@ -1,0 +1,45 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>GPX on a Map</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script src="../js/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 600px;
+        height: 450px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(0,0), 2);
+        mapstraction.addControls({"zoom": "large"});
+        
+        parse_gpx("laurelhurst.gpx");
+    }
+	function parse_gpx(filename) {
+	  jQuery.get(filename, {}, function(xmltxt) {
+	    var ct = 0;
+	    var pdata = {"color": "blue"};
+	    var pts = [];
+	    jQuery("trkpt", xmltxt).each(function(i) {
+          var lat = parseFloat($(this).attr("lat"));
+	      var lon = parseFloat($(this).attr("lon"));
+	      var thispt = new mxn.LatLonPoint(lat, lon);
+	      pts.push(thispt);
+  	    });
+        mapstraction.addPolylineWithData(new mxn.Polyline(pts, pdata));
+  	    mapstraction.autoCenterAndZoom();
+      });
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

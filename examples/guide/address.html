@@ -1,0 +1,61 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Geocode by Address</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+    <script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script src="mapstraction.js"></script>
+    <script src="mapstraction-geocode.js"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    div#clicks {
+    	width: 400px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var mks = [];
+    function create_map() {
+        mapstraction = new Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(new LatLonPoint(40, -98), 3);
+        mapstraction.addSmallControls();
+		geocoder = new MapstractionGeocoder(add_point, 'google');
+		document.forms[0].onsubmit = function() {
+			var address = new Object();
+			address.address = document.forms[0].newpt.value;
+			geocoder.geocode(address);
+			return false; // avoids form submission
+		};
+    }
+    function add_point(loc) {
+        var latlon = loc.point;
+    	var i = mks.length + 1;
+    	var markersrc = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=" + i + "|FF3333|000000";
+    	// Add marker
+    	var mk = new Marker(latlon);
+        mk.setIcon(markersrc, [21,34]);
+        mk.setShadowIcon("http://www.google.com/chart?chst=d_map_pin_shadow");
+        mks.push(mk);
+    	mapstraction.addMarker(mk);
+    	// Add to clicks box
+    	var box = document.getElementById("clicks");
+    	var newclick = document.createElement("p");
+    	var clickimg = document.createElement("img");
+    	clickimg.src = markersrc;
+		var clicktxt = document.createTextNode("new LatLonPoint(" + latlon.lat + ", " + latlon.lon + ");");
+		newclick.appendChild(clickimg);
+		newclick.appendChild(clicktxt);
+		box.appendChild(newclick);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <form><input type="text" name="newpt" /><input type="submit" name="butnew" value="Geocode" /></form>
+    <div id="mymap"></div>
+    <div id="clicks"></div>
+  </body>
+</html>

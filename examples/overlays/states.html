@@ -1,0 +1,46 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Color in a State</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+	var utah = [new mxn.LatLonPoint(36.99, -114.05), new mxn.LatLonPoint(36.99, -109.04),
+        new mxn.LatLonPoint(40.99, -109.05), new mxn.LatLonPoint(40.99, -111.05),
+        new mxn.LatLonPoint(41.99, -111.05), new mxn.LatLonPoint(41.99, -114.04),
+        new mxn.LatLonPoint(36.99, -114.05)];
+    var colorado = [new mxn.LatLonPoint(41.00, -102.05), new mxn.LatLonPoint(40.99, -109.04), new mxn.LatLonPoint(37.00, -109.04), new mxn.LatLonPoint(36.99, -102.04), new mxn.LatLonPoint(41.00, -102.05)];
+    var arizona = [new mxn.LatLonPoint(33.95, -114.52), new mxn.LatLonPoint(34.00, -114.47), new mxn.LatLonPoint(34.02, -114.43), new mxn.LatLonPoint(34.08, -114.43), new mxn.LatLonPoint(34.13, -114.35), new mxn.LatLonPoint(34.17, -114.29), new mxn.LatLonPoint(34.20, -114.22), new mxn.LatLonPoint(34.25, -114.16), new mxn.LatLonPoint(34.25, -114.13), new mxn.LatLonPoint(34.30, -114.13), new mxn.LatLonPoint(34.36, -114.22), new mxn.LatLonPoint(34.40, -114.26), new mxn.LatLonPoint(34.45, -114.33), new mxn.LatLonPoint(34.49, -114.36), new mxn.LatLonPoint(34.52, -114.38), new mxn.LatLonPoint(34.59, -114.43), new mxn.LatLonPoint(34.65, -114.45), new mxn.LatLonPoint(34.75, -114.52), new mxn.LatLonPoint(34.81, -114.58), new mxn.LatLonPoint(34.87, -114.63), new mxn.LatLonPoint(34.94, -114.63), new mxn.LatLonPoint(35.03, -114.63), new mxn.LatLonPoint(35.10, -114.64), new mxn.LatLonPoint(35.12, -114.61), new mxn.LatLonPoint(35.17, -114.56), new mxn.LatLonPoint(35.33, -114.59), new mxn.LatLonPoint(35.45, -114.66), new mxn.LatLonPoint(35.57, -114.67), new mxn.LatLonPoint(35.61, -114.65), new mxn.LatLonPoint(35.65, -114.69), new mxn.LatLonPoint(35.70, -114.70), new mxn.LatLonPoint(35.80, -114.70), new mxn.LatLonPoint(35.86, -114.66), new mxn.LatLonPoint(35.98, -114.74), new mxn.LatLonPoint(36.08, -114.75), new mxn.LatLonPoint(36.11, -114.67), new mxn.LatLonPoint(36.14, -114.63), new mxn.LatLonPoint(36.13, -114.48), new mxn.LatLonPoint(36.14, -114.36), new mxn.LatLonPoint(36.07, -114.30), new mxn.LatLonPoint(36.06, -114.31), new mxn.LatLonPoint(36.01, -114.24), new mxn.LatLonPoint(36.04, -114.14), new mxn.LatLonPoint(36.09, -114.11), new mxn.LatLonPoint(36.11, -114.12), new mxn.LatLonPoint(36.11, -114.10), new mxn.LatLonPoint(36.19, -114.04), new mxn.LatLonPoint(36.36, -114.04), new mxn.LatLonPoint(37.00, -114.05), new mxn.LatLonPoint(36.99, -112.59), new mxn.LatLonPoint(37.00, -110.86), new mxn.LatLonPoint(37.00, -109.04), new mxn.LatLonPoint(31.33, -109.05), new mxn.LatLonPoint(31.33, -111.07), new mxn.LatLonPoint(32.49, -114.81), new mxn.LatLonPoint(32.51, -114.80), new mxn.LatLonPoint(32.58, -114.80), new mxn.LatLonPoint(32.62, -114.79), new mxn.LatLonPoint(32.67, -114.74), new mxn.LatLonPoint(32.74, -114.70), new mxn.LatLonPoint(32.73, -114.61), new mxn.LatLonPoint(32.74, -114.58), new mxn.LatLonPoint(32.75, -114.53), new mxn.LatLonPoint(32.81, -114.50), new mxn.LatLonPoint(32.84, -114.46), new mxn.LatLonPoint(32.91, -114.48), new mxn.LatLonPoint(32.97, -114.48), new mxn.LatLonPoint(33.03, -114.52), new mxn.LatLonPoint(33.02, -114.60), new mxn.LatLonPoint(33.03, -114.65), new mxn.LatLonPoint(33.09, -114.70), new mxn.LatLonPoint(33.20, -114.68), new mxn.LatLonPoint(33.28, -114.72), new mxn.LatLonPoint(33.35, -114.69), new mxn.LatLonPoint(33.40, -114.72), new mxn.LatLonPoint(33.41, -114.65), new mxn.LatLonPoint(33.50, -114.58), new mxn.LatLonPoint(33.53, -114.55), new mxn.LatLonPoint(33.63, -114.51), new mxn.LatLonPoint(33.67, -114.52), new mxn.LatLonPoint(33.70, -114.49), new mxn.LatLonPoint(33.76, -114.50), new mxn.LatLonPoint(33.81, -114.52), new mxn.LatLonPoint(33.85, -114.53), new mxn.LatLonPoint(33.92, -114.53), new mxn.LatLonPoint(33.95, -114.52)];
+    var newmexico = [new mxn.LatLonPoint(32.00, -106.62), new mxn.LatLonPoint(31.99, -103.06), new mxn.LatLonPoint(36.99, -103.00), new mxn.LatLonPoint(36.99, -109.04), new mxn.LatLonPoint(36.99, -109.04), new mxn.LatLonPoint(31.33, -109.04), new mxn.LatLonPoint(31.33, -108.21), new mxn.LatLonPoint(31.77, -108.20), new mxn.LatLonPoint(31.78, -106.53), new mxn.LatLonPoint(32.00, -106.62)];
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.setCenterAndZoom(
+          new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
+        mapstraction.addSmallControls();
+        
+        color_state(utah, '00ff00');
+        color_state(colorado, '006600');
+        color_state(arizona, '009900');
+        color_state(newmexico, '00cc00');
+        mapstraction.autoCenterAndZoom();
+    }
+    function color_state(pts, color) {
+    	var poly = new mxn.Polyline(pts);
+    	poly.addData({opacity: 0.75, fillColor: color, width: 0, closed: true});
+    	mapstraction.addPolyline(poly);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

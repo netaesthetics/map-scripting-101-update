@@ -1,0 +1,38 @@
+<html>
+<head>
+<script>
+    var xmltxt  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+        xmltxt += "<root>\n";
+        xmltxt += "  <child name=\"first\" />\n";
+        xmltxt += "  <child name=\"second\">\n";
+        xmltxt += "    <grandchild>text goes here</grandchild>\n";
+        xmltxt += "  </child>\n";
+        xmltxt += "</root>\n";
+    var x = null;
+    var output = "";
+    
+    if (window.ActiveXObject) { // Internet Explorer
+      x = new ActiveXObject("Microsoft.XMLDOM");
+      x.async = false;
+      x.loadXML(xmltxt);
+    }
+    else if (window.DOMParser) { // Standards-compliant browsers
+        var p = new DOMParser();
+        x = p.parseFromString(xmltxt, "text/xml");
+    }
+    else {
+      // Can't parse XML
+    }
+
+    if (x) {
+      var children = x.getElementsByTagName("child");
+      for (i=0; i<children.length; i++) {
+        output += children[i].getAttribute("name") + "\n";
+      }
+    }
+    alert(output);
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Geocode by Address</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(google)"></script>
+    <script src="mxn.google.geocoder.js"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    div#clicks {
+    	width: 400px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var mks = [];
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(0, 0), 1);
+        mapstraction.addSmallControls();
+		geocoder = new MapstractionGeocoder(add_point, 'google');
+		
+		document.getElementById('addrform').onsubmit = function() {
+			var address = {
+			  address : document.getElementById('newpt').value
+			};
+			geocoder.geocode(address);
+			return false; // avoids posting form to the server
+		};
+    }
+    function add_point(loc) {
+    	var mk = new mxn.Marker(loc.point);
+
+    	mk.setInfoBubble(loc.address);
+    	mapstraction.addMarker(mk);
+    	mk.openBubble();
+    	mapstraction.autoCenterAndZoom();
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <form id="addrform">
+    <input type="text" id="newpt" />
+    <input type="submit" name="butnew" value="Geocode" /></form>
+    <div id="mymap"></div>
+  </body>
+</html>

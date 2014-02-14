@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" 
+      xmlns:georss="http://www.georss.org/georss">
+   <title>Feed Title</title>
+   <subtitle>Feed Subtitle</subtitle>
+   <link href="http://example.org/"/>
+   <updated>2010-01-01T00:01:23Z</updated>
+   <author>
+      <name>Feed Author</name>
+      <email>feedemail@example.com</email>
+   </author>
+   <id>FEEDID</id>
+   <entry>
+      <title>Entry title</title>
+      <link href="http://example.org/entry_link"/>
+     <id>ENTRYID</id>
+      <updated>2010-01-01T00:01:23Z</updated>
+      <summary>Entry summary</summary>
+      <georss:box>42.943 -71.032 43.039 -69.856</georss:box>
+      <georss:point>42.943 -71.032</georss:point>
+      </entry>
+</feed>

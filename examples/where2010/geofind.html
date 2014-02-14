@@ -1,0 +1,42 @@
+<html>
+<head>
+<title>W3C Geolocation Code</title>
+<style>
+h1 {
+
+}
+textarea {
+  width: 80%;
+  height: 50%;
+}
+</style>
+</head>
+<body>
+
+<h1>duv.ly/geofind</h1>
+<textarea>
+var mapstraction;
+function initialize() {
+    mapstraction = new mxn.Mapstraction('map_canvas','google');
+    mapstraction.setCenterAndZoom(new mxn.LatLonPoint(0,0), 2);
+
+    navigator.geolocation.getCurrentPosition(foundLocation, noLocation);
+}
+
+function foundLocation(position)
+{
+   var lat = position.coords.latitude;
+   var long = position.coords.longitude;
+
+   var pt = new mxn.LatLonPoint(lat, long);
+   var mk = new mxn.Marker(pt);
+   mapstraction.addMarker(mk);
+   mapstraction.setCenterAndZoom(pt, 14);
+}
+function noLocation()
+{
+   alert('Could not find  location');
+}
+</textarea>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Weather Map Mashup</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 800px;
+        height: 450px;
+    }
+    div#forecast {
+    	width: 200px;
+    	height: 400px;
+    	background-color: #fff;
+    	position: relative;
+    	top: -435px;
+    	left: 550px;
+    	padding: 10px;
+    }
+    </style>
+    <script type="text/javascript">
+	var weatherids = [
+		"USMN0503"  // Minneapolis
+		,"USNY0996" // New York City
+		,"USWA0395" // Seattle
+		,"USTX0327" // Dallas
+		,"USCA0987" // San Francisco
+		,"USFL0316" // Miami
+		,"USIL0225" // Chicago
+		,"USMO0787" // St. Louis
+		,"USCO0105" // Denver
+		,"USAZ0166" // Phoenix
+		,"USTN0357" // Nashville
+	];
+
+    var mapstraction;
+    var center = new mxn.LatLonPoint(38,-98);
+    var zoom = 4;
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.setCenterAndZoom(center, zoom);
+        mapstraction.addControls({"zoom":"large"});
+        $('#forecast').hide();
+        for (var i in weatherids) {
+			get_weather(weatherids[i], add_weather);
+        }
+	}
+	
+	function get_weather(loc, func)
+	{
+        jQuery.getJSON("http://pipes.yahoo.com/pipes/pipe.run?_id=SBcb8u8J3hGNdOcopgt1Yg&_render=json&location=" + loc + "&_callback=?", func);
+	}
+	function add_weather(data)
+	{
+		jQuery.each(data.value.items, function(i, item) {
+			var lat = item["geo:lat"];
+			var lon = item["geo:long"];
+			var code = item["yweather:condition"].code;
+			var desc = item["description"];
+			var imgsrc = condition_image(code);
+			
+			add_marker({"lat":lat, "lon":lon, "code":code, "desc":desc, "imgsrc":imgsrc});
+		})
+	}
+	function add_marker(options)
+	{
+        var marker = new mxn.Marker(new mxn.LatLonPoint(options["lat"], options["lon"]));
+        marker.setIcon(options["imgsrc"], [52,52]);
+        marker.setShadowIcon('blankshadow.png', [0,0]);
+        marker.setInfoDiv(options["desc"] + "<p><a href=\"javascript:return_center()\"><img src=\"usmap.png\" border=\"0\" alt=\"Return to full map\" /></a></p>", "forecast");
+		marker.setAttribute("point", marker.location);
+		
+        mapstraction.addMarker(marker);
+        //var micon = marker.proprietary_marker.getIcon();
+        //micon.imageMap = [0, 0, marker.iconSize[0], 0, marker.iconSize[0], marker.iconSize[1], 0, marker.iconSize[1], 0, 0];
+        marker.click.addHandler(function(event_name, event_source, event_args) {
+        	mapstraction.setCenterAndZoom(marker.location, 6);
+        	var bounds = mapstraction.getBounds();
+        	var diff = ((bounds.ne.lon - bounds.sw.lon)/4);
+        	mapstraction.setCenter(new mxn.LatLonPoint(mapstraction.getCenter().lat, bounds.ne.lon - diff));
+        	$('#forecast').show();
+        });
+        
+        check_markers();
+	}
+	function check_markers()
+	{
+		// Waits for all markers to be loaded before doing something
+		if (mapstraction.markers.length == weatherids.length) {
+			//mapstraction.autoCenterAndZoom();
+			//center = mapstraction.getCenter();
+			//zoom = mapstraction.getZoom();
+		}
+	}
+	function return_center() {
+		mapstraction.setCenterAndZoom(center, zoom);
+		$('#forecast').hide();
+	}
+	function condition_image(code)
+	{
+		return "http://l.yimg.com/a/i/us/we/52/" + code + ".gif";
+	}
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+   	<div id="forecast"></div>
+  </body>
+</html>

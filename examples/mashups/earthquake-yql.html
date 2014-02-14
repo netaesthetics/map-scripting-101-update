@@ -1,0 +1,202 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Earthquake Map Mashup</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 550px;
+        height: 450px;
+    }
+    img#reset {
+    	border: 5px solid white;
+    	position: relative;
+    	top: -435px;
+    	left: 430px;
+    }
+    ol#legend {
+    	list-style: none;
+    	margin: 0;
+    	padding: 0;
+    }
+    ol#legend li {
+    	display: inline;
+    	padding-right: 30px;
+    }
+    ol#legend li img {
+    }
+    </style>
+    <script type="text/javascript">
+	var mapstraction;
+	var highlighted = "";
+	var defaultloc = {"point": new mxn.LatLonPoint(14.604847155053898, -177.1875), "zoom": 1};
+	
+	var regions = {
+		"California": [30.107117887092357, -136.318359375, 45.61403741135093, -101.162109375],
+		"Alaska": [48.516604348867475, 164.35546874999997, 68.49604022839505, -125.33203125],
+		"Latin America": [-47.04018214480666, -112.5, 24.84656534821976, -15.8203125],
+		"Southeast Asia": [-33.43144133557529, 52.20703125, 39.90973623453719, -167.16796875]
+	};
+	var months = {"1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun", "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"};
+	
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setMapType(mxn.Mapstraction.HYBRID);
+        mapstraction.addControls({"zoom":"large"});
+        view_world();
+        get_quakes();
+        
+        $("#reset").click(view_world);
+        
+        mapstraction.addEventListener('click', function(cpt) {
+        	if (highlighted) {
+        		set_region(highlighted);
+        	}
+        });
+        GEvent.addListener(mapstraction.getMap(), "mousemove", function(cpt) {
+        	check_hover(cpt);
+        });        
+	}
+
+	// Center and zoom setting functions	
+	function view_world() {
+        mapstraction.setCenterAndZoom(defaultloc["point"], defaultloc["zoom"]);		
+        $("#reset").hide();
+	}
+	function set_region(name)
+	{
+		var bounds = regions[name];
+		if (bounds)
+		{
+			mapstraction.setBounds(new mxn.BoundingBox(bounds[0], bounds[1], bounds[2], bounds[3]));
+			$("#reset").show();
+		}
+	}
+
+	// Data and marker functions
+	function get_quakes()
+	{
+        jQuery.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20atom%20where%20url%3D'http%3A%2F%2Fearthquake.usgs.gov%2Feqcenter%2Fcatalogs%2F7day-M2.5.xml'&format=json&diagnostics=true&callback=?", function(data) {
+			jQuery.each(data.query.results.entry, function(i, item) {
+				// Get Lat/Lon point
+				var lltxt = item.point;
+				var llarr = lltxt.split(" ");
+				// Get Richter value
+				var richter = item["title"];
+				richter = richter.substr(2, 3);
+				var majorrichter = richter.substring(0, 1);
+				var iconvals = get_icon(majorrichter);
+				// Create marker
+				var marker = new mxn.Marker(new mxn.LatLonPoint(llarr[0], llarr[1]));
+				marker.setIcon(iconvals.name, iconvals.size);
+				marker.setShadowIcon('blankshadow.png', [0,0]);
+				var eqdate = months[item["y:published"]["month"]] + " " + item["y:published"]["day"] + ", " + item["y:published"]["year"];
+				eqdate = item["y:published"]["month"] + "/" + item["y:published"]["day"] + "/" + item["y:published"]["year"];
+				marker.setInfoBubble('<strong>' + item["title"] + '</strong><p>On ' + eqdate + ' (<a href="http://earthquake.usgs.gov' + item["link"] + '">more info</a>)</p>');
+				mapstraction.addMarker(marker);
+			});
+        });
+	}
+	function get_icon(majorrichter)
+	{
+		var identifier;
+		var size;
+		if (majorrichter < 4)
+		{
+			identifier = "low";
+			size = [10, 10];
+		}
+		else if (majorrichter == 4)
+		{
+			identifier = "med";
+			size = [15, 15];
+		}
+		else
+		{
+			identifier = "high";
+			size = [20, 20];
+		}
+		return {"name": "richter-" + identifier + ".png", "size": size};
+	}
+	
+	// Region highlight functions
+	function check_hover(cpt) {
+       	cpt = new mxn.LatLonPoint(cpt.lat(), cpt.lng());
+       	var regionin = find_region(cpt);
+       	if (regionin) {
+       		highlighted = regionin;
+       		highlight_region(regionin);
+       	}
+       	else if (highlighted) {
+       		highlighted = "";
+       		mapstraction.removeAllPolylines();
+       	}	
+	}
+	function find_region(cpt) {
+		for (var k in regions) {
+			if (k != "World") {
+				var thisr = regions[k];
+				if (thisr[0] < cpt.lat && thisr[2] > cpt.lat &&
+				abslon(thisr[1]) < abslon(cpt.lon) && abslon(thisr[3]) > abslon(cpt.lon)) {
+					return k;
+				}
+			}
+		}
+		return "";
+	}
+	function abslon(lon)
+	{
+		if (lon < 0) {
+			lon = 360 - Math.abs(lon);
+		}
+		return lon;
+	}
+	function highlight_region(name)
+	{
+		var bounds = regions[name];
+		if (bounds)
+		{
+			var psize = 3;
+			var pdata = {"color": "white"};
+			mapstraction.removeAllPolylines();
+
+			// Southwest corner
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[0], bounds[1]), new mxn.LatLonPoint(bounds[0]+psize, bounds[1])]), pdata);
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[0], bounds[1]), new mxn.LatLonPoint(bounds[0], bounds[1]+psize)]), pdata);
+
+			// Northwest corner
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[2], bounds[1]), new mxn.LatLonPoint(bounds[2]-psize, bounds[1])]), pdata);
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[2], bounds[1]), new mxn.LatLonPoint(bounds[2], bounds[1]+psize)]), pdata);
+
+			// Northeast corner
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[2], bounds[3]), new mxn.LatLonPoint(bounds[2]-psize, bounds[3])]), pdata);
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[2], bounds[3]), new mxn.LatLonPoint(bounds[2], bounds[3]-psize)]), pdata);
+
+			// Southeast corner
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[0], bounds[3]), new mxn.LatLonPoint(bounds[0]+psize, bounds[3])]), pdata);
+			mapstraction.addPolylineWithData(new mxn.Polyline([new mxn.LatLonPoint(bounds[0], bounds[3]), new mxn.LatLonPoint(bounds[0], bounds[3]-psize)]), pdata);
+		}
+	}
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+   	<img id="reset" src="worldmap.png" />
+   	<ol id="legend">
+   	  <li><img src="richter-low.png" /> 2.5 - 3.9</li>
+   	  <li><img src="richter-med.png" /> 4.0 - 4.9</li>
+   	  <li><img src="richter-high.png" /> 5.0+</li>
+   	</ol>
+   	
+   	<p>
+    <a href="javascript:set_region('California');">California</a>
+    <a href="javascript:set_region('Alaska');">Alaska</a>
+    <a href="javascript:set_region('Southeast Asia');">Southeast Asia</a>
+    <a href="javascript:set_region('Latin America');">Latin America</a>
+    <a href="javascript:view_world();">World</a>
+    </p>
+  </body>
+</html>

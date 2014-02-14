@@ -1,0 +1,39 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Handle events when polyline is added/removed</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction, mainmk;
+    function create_map() {
+   	    mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 14);
+		mapstraction.addLargeControls();
+		
+		mapstraction.polylineAdded.addHandler(function(event_name, event_source, event_args) {
+          alert('Added polyline starting at ' + event_args.polyline.points[0]);
+        });
+		mapstraction.polylineRemoved.addHandler(function(event_name, event_source, event_args) {
+          alert('Removed polyline starting at ' + event_args.polyline.points[0]);
+        });
+        
+        var pts = [new mxn.LatLonPoint(37.775311191132175, -122.41589069366455), new mxn.LatLonPoint(37.769985385796204, -122.40926027297974)];
+        var poly = new mxn.Polyline(pts);
+        mapstraction.addPolyline(poly);
+        mapstraction.removePolyline(poly);
+    }
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

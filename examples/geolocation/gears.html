@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>Testing Gears</title>
+	<script type="text/javascript" src="gears_init.js"></script>
+	<script type="text/javascript">
+	function findLocation()
+	{
+	  var geo = google.gears.factory.create('beta.geolocation');
+	  geo.getCurrentPosition(foundLocation, noLocation);
+	}
+	function foundLocation(position)
+	{
+	  var lat = position.latitude;
+	  var long = position.longitude;
+	  alert('Found location: ' + lat + ', ' + long);
+	}
+	function noLocation()
+	{
+	  alert('Could not find location');
+	}
+	</script>
+</head>
+<body>
+	<button onclick="findLocation();">Click to find location</button>
+</body>
+</html>

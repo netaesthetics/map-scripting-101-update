@@ -16,16 +16,18 @@
     function create_map() {
    	    mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
 		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 11);
-		mapstraction.addLargeControls();   	    
-        for (i=1; i<=5; i++)
-        {
-        	var rndlatlon = get_random_by_bounds(mapstraction.getBounds());
-    	    marker = new mxn.Marker(rndlatlon);
-            marker.setIcon('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + i + '|FF3333|000000', [21,32]);
-	        marker.setShadowIcon('http://chart.apis.google.com/chart?chst=d_map_pin_shadow');
-    	    mapstraction.addMarker(marker);
-        }
-        mapstraction.autoCenterAndZoom();
+		mapstraction.addLargeControls();
+		mapstraction.load.addHandler(function(ty, src, args) { 
+			for (i=1; i<=5; i++)
+			{
+				var rndlatlon = get_random_by_bounds(mapstraction.getBounds());
+				marker = new mxn.Marker(rndlatlon);
+				marker.setIcon('http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + i + '|FF3333|000000', [21,32]);
+				marker.setShadowIcon('http://chart.apis.google.com/chart?chst=d_map_pin_shadow');
+				mapstraction.addMarker(marker);
+			}
+			mapstraction.autoCenterAndZoom();
+		});
     }
     function get_random_by_bounds(bounds) {
       var lat = bounds.sw.lat + (Math.random() * (bounds.ne.lat - bounds.sw.lat));

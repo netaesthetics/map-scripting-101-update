@@ -32,11 +32,17 @@ new mxn.LatLonPoint(40.343194829399295, -149.17236328125), new mxn.LatLonPoint(4
         mapstraction.setCenterAndZoom(
           new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
         mapstraction.addSmallControls();
-
-var bounds = mapstraction.getBounds();
-var poly = BoundingBox_to_Polyline(bounds);
-mapstraction.addPolyline(poly);
-mapstraction.setZoom(mapstraction.getZoom()-1);
+		
+		// mapstraction.addEventListener('click', function(clickpoint) {
+		//   or:
+		// mapstraction.click.addHandler(function(ty, src, args) { 
+		//   -> to have the map zoom out on click only
+		mapstraction.load.addHandler(function(ty, src, args) { 
+			var bounds = mapstraction.getBounds();
+			var poly = BoundingBox_to_Polyline(bounds);
+			mapstraction.addPolyline(poly);
+			mapstraction.setZoom(mapstraction.getZoom()-1);
+		});
     }
 
     function get_poly_bounds(polypts) {

@@ -17,16 +17,18 @@
    	    mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
 		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 11);
 		mapstraction.addLargeControls();
-        for (i=1; i<=5; i++)
-        {
-        	var rndlatlon = get_random_by_bounds(mapstraction.getBounds());
-    	    var marker = new mxn.Marker(rndlatlon);
-    	    marker.setInfoBubble('This is marker #' + i);
-    	    marker.openInfoBubble.addHandler(myboxopened);
-    	    marker.closeInfoBubble.addHandler(myboxclosed);
-    	    mapstraction.addMarker(marker);
-        }
-        mapstraction.autoCenterAndZoom();
+		mapstraction.load.addHandler(function(ty, src, args) { 
+			for (i=1; i<=5; i++)
+			{
+				var rndlatlon = get_random_by_bounds(mapstraction.getBounds());
+				var marker = new mxn.Marker(rndlatlon);
+				marker.setInfoBubble('This is marker #' + i);
+				marker.openInfoBubble.addHandler(myboxopened);
+				marker.closeInfoBubble.addHandler(myboxclosed);
+				mapstraction.addMarker(marker);
+			}
+			mapstraction.autoCenterAndZoom();
+		});
     }
     function myboxopened(event_name, event_source, event_args) {
       mapcenter = mapstraction.getCenter();

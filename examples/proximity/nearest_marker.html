@@ -1,0 +1,62 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Find the Nearest Marker</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    function create_map() {
+   	    mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+		mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 11);
+		mapstraction.addSmallControls();   	    
+
+        var bounds = new mxn.BoundingBox(32.45415, -113.95019, 40.94671, -103.00781);
+        for (i=1; i<=5; i++)
+        {
+    	    var marker = new mxn.Marker(get_random_by_bounds(bounds));
+    	    mapstraction.addMarker(marker);
+        }
+        mapstraction.setBounds(bounds);
+        
+        //mapstraction.addEventListener('click', find_closest_marker);
+        mapstraction.click.addHandler(find_closest_marker);
+    }
+    function find_closest_marker(event_type, event_source, event_args) {
+      if (mapstraction.markers.length > 0) {
+        var clickpoint = event_args.location;
+        var closest_marker = mapstraction.markers[0];
+        var closest_dist = clickpoint.distance(closest_marker.location);
+      
+        for (var i=1; i < mapstraction.markers.length; i++) {
+          var thismarker = mapstraction.markers[i];
+          var thisdist = clickpoint.distance(thismarker.location);
+          if (thisdist < closest_dist) {
+            closest_dist = thisdist;
+            closest_marker = thismarker;
+          }
+        }
+        if (closest_marker) {
+          var poly = new mxn.Polyline([clickpoint, closest_marker.location]);
+          mapstraction.addPolyline(poly);
+        }
+      }
+    }
+    function get_random_by_bounds(bounds) {
+      var lat = bounds.sw.lat + (Math.random() * (bounds.ne.lat - bounds.sw.lat));
+      var lon = bounds.sw.lon + (Math.random() * (bounds.ne.lon - bounds.sw.lon));
+      return new mxn.LatLonPoint(lat, lon);
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

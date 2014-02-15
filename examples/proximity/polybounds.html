@@ -1,0 +1,82 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Draw a Polygon</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 600px;
+        height: 550px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var pentagon = [new mxn.LatLonPoint(38.870253, -77.058491),
+ new mxn.LatLonPoint(38.872725, -77.057955),
+ new mxn.LatLonPoint(38.873059, -77.054715),
+ new mxn.LatLonPoint(38.870804, -77.053320),
+ new mxn.LatLonPoint(38.869000, -77.055616),
+ new mxn.LatLonPoint(38.870253, -77.058491)];
+ 
+    var pts = [new mxn.LatLonPoint(41.15880548223032, -147.041015625),
+new mxn.LatLonPoint(40.30969225420427, -145.1953125),
+new mxn.LatLonPoint(39.43279892925878, -146.07421875),
+new mxn.LatLonPoint(38.25198550546087, -148.7548828125),
+new mxn.LatLonPoint(40.343194829399295, -149.17236328125), new mxn.LatLonPoint(41.15880548223032, -147.041015625)];
+ 
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.setCenterAndZoom(
+          new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
+        mapstraction.addSmallControls();
+        var poly = new mxn.Polyline(pts);
+        poly.addData({opacity: .9, fillColor: 'ffffff', color: '999999', width: 1});
+        //mapstraction.addPolyline(poly);
+        
+        var bds = get_poly_bounds(pts);
+        var bdp = BoundingBox_to_Polyline(bds);
+        mapstraction.addPolyline(bdp);
+        
+        mapstraction.autoCenterAndZoom();
+    }
+
+    function get_poly_bounds(polypts) {
+      var minlat = polypts[0].lat;
+      var maxlat = minlat;
+      var minlon = polypts[1].lon;
+      var maxlon = minlon;
+      
+      for (var i = 1; i < polypts.length; i++) {
+        var pt = polypts[i];
+        if (pt.lat > maxlat) {
+          maxlat = pt.lat;
+        }
+        if (pt.lon > maxlon) {
+          maxlon = pt.lon;
+        }
+        if (pt.lat < minlat) {
+          minlat = pt.lat;
+        }
+        if (pt.lon < minlon) {
+          minlon = pt.lon;
+        }
+      }
+      return new mxn.BoundingBox(minlat, minlon, maxlat, maxlon);
+    }
+
+    function BoundingBox_to_Polyline(box) {
+      var points = [box.sw, new mxn.LatLonPoint(box.ne.lat, box.sw. lon), box.ne, new mxn.LatLonPoint(box.sw.lat, box.ne.lon), new mxn.LatLonPoint(box.sw.lat, box.sw.lon-.0001)];
+      var poly = new mxn.Polyline(points);
+      return poly;
+    }
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

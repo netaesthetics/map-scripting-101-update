@@ -1,0 +1,73 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Calculate distance between two points</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="../../testing/mxn/source/mxn.js?(google)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var gdir;
+    var dist, ddist;
+    var wportland, eportland;
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction.addSmallControls();
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(45.52856, -122.67060), 14);
+
+        wportland = new mxn.LatLonPoint(45.52822, -122.67195);
+  		eportland = new mxn.LatLonPoint(45.52933, -122.66957);
+        
+        dist = eportland.distance(wportland);
+        mapstraction.addPolylineWithData(new mxn.Polyline([wportland, eportland]), {color:'#ff0000'});
+
+		// Google-specific code for driving directions
+		gdir = new GDirections(mapstraction.getMap());
+	    GEvent.addListener(gdir, "load", setDDist);
+    	GEvent.addListener(gdir, "error", handleErrors);
+    	gdir.loadFromWaypoints([wportland.toProprietary(mapstraction.api), eportland.toProprietary(mapstraction.api)]);
+    }
+	function setDDist() {
+		var gmap = mapstraction.getMap();
+		gmap.addOverlay(gdir.getPolyline());
+		ddist = gdir.getDistance().meters / 1000; // driving distance in km
+        
+        var disttext = document.createTextNode("Normal distance is " + dist + " km, but driving distance: " + ddist + " km");
+		mapstraction.currentElement.parentNode.appendChild(disttext);
+	}
+
+function handleErrors(){
+   if (gdir.getStatus().code == G_GEO_UNKNOWN_ADDRESS)
+     alert("No corresponding geographic location could be found for one of the specified addresses. This may be due to the fact that the address is relatively new, or it may be incorrect.\nError code: " + gdir.getStatus().code);
+   else if (gdir.getStatus().code == G_GEO_SERVER_ERROR)
+     alert("A geocoding or directions request could not be successfully processed, yet the exact reason for the failure is not known.\n Error code: " + gdir.getStatus().code);
+   
+   else if (gdir.getStatus().code == G_GEO_MISSING_QUERY)
+     alert("The HTTP q parameter was either missing or had no value. For geocoder requests, this means that an empty address was specified as input. For directions requests, this means that no query was specified in the input.\n Error code: " + gdir.getStatus().code);
+
+//   else if (gdir.getStatus().code == G_UNAVAILABLE_ADDRESS)  <--- Doc bug... this is either not defined, or Doc is wrong
+//     alert("The geocode for the given address or the route for the given directions query cannot be returned due to legal or contractual reasons.\n Error code: " + gdir.getStatus().code);
+     
+   else if (gdir.getStatus().code == G_GEO_BAD_KEY)
+     alert("The given key is either invalid or does not match the domain for which it was given. \n Error code: " + gdir.getStatus().code);
+
+   else if (gdir.getStatus().code == G_GEO_BAD_REQUEST)
+     alert("A directions request could not be successfully parsed.\n Error code: " + gdir.getStatus().code);
+    
+   else alert("An unknown error occurred.");   
+}
+
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

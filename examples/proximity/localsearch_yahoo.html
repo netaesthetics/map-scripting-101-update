@@ -1,0 +1,46 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Show Local Results</title>
+	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(yahoo)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'yahoo');
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 15);
+        mapstraction.addLargeControls();
+        // Yahoo-specific calls
+        var ymap = mapstraction.getMap();
+        ymap.searchLocal(ymap.getCenterLatLon(), 'burritos', 1, 5);
+        YEvent.Capture(ymap, EventsList.onEndLocalSearch, plotResults);
+        //mapstraction.swap('mymap', 'google');
+    }
+    function plotResults(results) {
+	  if (results.Data) {
+	    var places = results.Data.ITEMS;
+	    for (i=0; i < places.length; i++) {
+          var thisplace = places[i];
+          var lat = parseFloat(thisplace.LATITUDE);
+          var lon = parseFloat(thisplace.LONGITUDE);
+          var marker = new mxn.Marker(new mxn.LatLonPoint(lat, lon));
+          marker.setInfoBubble(thisplace.TITLE + '<br />' + thisplace.ADDRESS);
+          mapstraction.addMarker(marker);
+        }
+      }
+      //mapstraction.swap('mymap', 'google');
+      mapstraction.autoCenterAndZoom();
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Driving Directions with Google Maps</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=yourkeyhere" type="text/javascript"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    div#mydir {
+    	width: 400px;
+    }
+    </style>
+    <script type="text/javascript">
+    var gdir;
+    var myaddress = "2839 NE Alberta St, Portland, OR";
+    function create_map() {
+      if (GBrowserIsCompatible()) {
+        var map = new GMap2(document.getElementById("mymap"));
+        map.setCenter(new GLatLng(45.559192, -122.636049), 15);
+        gdir = new GDirections(map, document.getElementById("mydir"));
+		GEvent.addListener(gdir, "load", dirLoaded);
+		GEvent.addListener(gdir, "error", handleErrors);
+
+        //gdir.load("from: Portland, OR to: Springfield");
+      }
+    }
+    function loadDir() {
+      var f = document.forms[0];
+      var fromaddress = f.addr.value + " " + f.city.value + ", " + f.state.options[f.state.selectedIndex].value;
+
+	  gdir.load("from: " + fromaddress + " to: " + myaddress);
+    }
+    function dirLoaded() {
+    
+    }
+
+function handleErrors(){
+   if (gdir.getStatus().code == G_GEO_UNKNOWN_ADDRESS)
+     alert("No corresponding geographic location could be found for one of the specified addresses. This may be due to the fact that the address is relatively new, or it may be incorrect.\nError code: " + gdir.getStatus().code);
+   else if (gdir.getStatus().code == G_GEO_SERVER_ERROR)
+     alert("A geocoding or directions request could not be successfully processed, yet the exact reason for the failure is not known.\n Error code: " + gdir.getStatus().code);
+   
+   else if (gdir.getStatus().code == G_GEO_MISSING_QUERY)
+     alert("The HTTP q parameter was either missing or had no value. For geocoder requests, this means that an empty address was specified as input. For directions requests, this means that no query was specified in the input.\n Error code: " + gdir.getStatus().code);
+
+//   else if (gdir.getStatus().code == G_UNAVAILABLE_ADDRESS)  <--- Doc bug... this is either not defined, or Doc is wrong
+//     alert("The geocode for the given address or the route for the given directions query cannot be returned due to legal or contractual reasons.\n Error code: " + gdir.getStatus().code);
+     
+   else if (gdir.getStatus().code == G_GEO_BAD_KEY)
+     alert("The given key is either invalid or does not match the domain for which it was given. \n Error code: " + gdir.getStatus().code);
+
+   else if (gdir.getStatus().code == G_GEO_BAD_REQUEST)
+     alert("A directions request could not be successfully parsed.\n Error code: " + gdir.getStatus().code);
+    
+   else alert("An unknown error occurred.");
+   
+}
+
+    </script>
+  </head>
+  <body onload="create_map()" onunload="GUnload()">
+  	<form onSubmit="loadDir();return false;">
+  	  Address: <input type="text" name="addr" />
+  	  City: <input type="text" name="city" value="Portland" />
+  	  <select name="state">
+  	    <option>OR</option>
+  	    <option>WA</option>
+  	  </select>
+  	  <input type="submit" value="Go" />
+  	</form>
+    <div id="mymap"></div>
+    <div id="mydir"></div>
+  </body>
+</html>

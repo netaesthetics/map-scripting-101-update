@@ -1,0 +1,77 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Bearing Experiments</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+    var mapstraction;
+    var wichita = new mxn.LatLonPoint(37.7454463, -97.4080747);
+    var tulsa = new mxn.LatLonPoint(36.0390101, -95.9936344);
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        
+        mapstraction.setCenterAndZoom(wichita, 8);
+        mapstraction.addPolyline(new mxn.Polyline([wichita, tulsa]));
+        mapstraction.autoCenterAndZoom();
+        
+        // Find bearing
+        var bearing = get_bearing(wichita, tulsa);
+        
+        // Find point X km along route
+        var newpt = get_destination(wichita, 128, bearing);
+        var mk = new mxn.Marker(newpt);
+        mapstraction.addMarker(mk);
+    }
+
+/*** Helper functions ***/    
+
+    function get_destination(pt, dist, bearing) {
+      var R = 6371; // radius of earth (km)
+      var lat1 = degrees_to_radians(pt.lat);
+      var lon1 = degrees_to_radians(pt.lon);
+      bearing = degrees_to_radians(bearing);
+
+  var lat2 = Math.asin( Math.sin(lat1)*Math.cos(dist/R) + 
+                        Math.cos(lat1)*Math.sin(dist/R)*Math.cos(bearing) );
+  var lon2 = lon1 + Math.atan2(Math.sin(bearing)*Math.sin(dist/R)*Math.cos(lat1), 
+                               Math.cos(dist/R)-Math.sin(lat1)*Math.sin(lat2));
+  lon2 = (lon2+Math.PI)%(2*Math.PI) - Math.PI;  // normalise to -180...+180
+  
+  lat2 = radians_to_degrees(lat2);
+  lon2 = radians_to_degrees(lon2);
+
+      return new mxn.LatLonPoint(lat2, lon2);
+    }
+    function get_bearing(pt1, pt2) {
+      var lat1 = degrees_to_radians(pt1.lat);
+      var lat2 = degrees_to_radians(pt2.lat);
+      var lon_diff = degrees_to_radians(pt2.lon - pt1.lon);
+
+      var y = Math.sin(lon_diff) * Math.cos(lat2);
+      var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon_diff);
+      var bearing = Math.atan2(y, x);
+      return (radians_to_degrees(bearing)+360) % 360;
+    }
+    
+    function degrees_to_radians(deg) {
+      return deg * Math.PI / 180;
+    }
+    function radians_to_degrees(rad) {
+      return rad * 180 / Math.PI;
+    }
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

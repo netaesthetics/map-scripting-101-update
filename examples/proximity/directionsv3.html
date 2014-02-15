@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Mapstraction Examples - Marker Click Handler</title>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<style type="text/css">
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    div#mydir {
+    	width: 400px;
+    }
+</style>
+<script type="text/javascript">
+var map, gdir;
+var myaddress = "2839 NE Alberta St, Portland, OR";
+function create_map() {
+  var opt = {center: new google.maps.LatLng(45.559192, -122.636049), zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP};
+  map = new google.maps.Map(document.getElementById("mymap"), opt);
+  gdir = new google.maps.DirectionsService();
+}
+function loadDir() {
+  var stateobj = document.getElementById('state');
+  var fromaddress = document.getElementById('addr').value + " " + document.getElementById('city').value + ", " + stateobj.options[stateobj.selectedIndex].value;
+		
+	    var diropt = {
+          origin: fromaddress, 
+          destination: myaddress,
+          travelMode: google.maps.DirectionsTravelMode.DRIVING
+	    };
+	    gdir.route(diropt, setDir);
+
+}
+function setDir(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+		var directionsDisplay = new google.maps.DirectionsRenderer({map: map, panel: document.getElementById('mydir')});
+        directionsDisplay.setDirections(response);
+      }
+}
+
+</script>
+</head>
+<body onload="create_map()">
+  	<form onSubmit="loadDir();return false;">
+  	  Address: <input type="text" id="addr" />
+  	  City: <input type="text" id="city" value="Portland" />
+  	  <select id="state">
+  	    <option>OR</option>
+  	    <option>WA</option>
+  	  </select>
+  	  <input type="submit" value="Go" />
+  	</form>
+    <div id="mymap"></div>
+    <div id="mydir"></div>
+</body>
+</html>
+

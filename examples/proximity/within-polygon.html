@@ -1,0 +1,191 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Find if Click Point is Within BoundingBox</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+	var mapstraction;
+	var box;
+    var utah = [new mxn.LatLonPoint(36.99816565700228, -114.049072265625), new mxn.LatLonPoint(36.99706886366255, -109.0447998046875), new mxn.LatLonPoint(40.994410999439516, -109.05166625976562), new mxn.LatLonPoint(40.99648401437787, -111.04705810546875), new mxn.LatLonPoint(41.99522219923444, -111.04705810546875), new mxn.LatLonPoint(41.99113954535575, -114.04083251953125), new mxn.LatLonPoint(36.99816565700228, -114.049072265625)];
+    var sfstar = [new mxn.LatLonPoint(37.5, -122.8), new mxn.LatLonPoint(37.9, -122.7), new mxn.LatLonPoint(37.6, -122.4), new mxn.LatLonPoint(37.75, -122.65), new mxn.LatLonPoint(37.5, -122.79)  ];
+
+    utah = [new mxn.LatLonPoint(36.99, -114.05), new mxn.LatLonPoint(36.99, -109.04), new mxn.LatLonPoint(40.99, -109.05), new mxn.LatLonPoint(40.99, -111.05), new mxn.LatLonPoint(41.99, -111.05), new mxn.LatLonPoint(41.99, -114.04), new mxn.LatLonPoint(36.99, -114.05)];
+    var sfstar = [new mxn.LatLonPoint(37.5, -122.8), new mxn.LatLonPoint(37.9, -122.7), new mxn.LatLonPoint(37.6, -122.4), new mxn.LatLonPoint(37.75, -122.65), new mxn.LatLonPoint(37.5, -122.79)  ];
+
+
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(39.5, -111.7), 6);
+        mapstraction.addSmallControls();
+
+		utah[0].lat -= .0001;
+		//mapstraction.addPolyline(new mxn.Polyline(utah));
+		//mapstraction.autoCenterAndZoom();
+
+        //mapstraction.addEventListener('click', function(clickpoint) {
+        mapstraction.click.addHandler(function(event_type, event_source, event_args) {
+          var clickpoint = event_args.location;
+          var intersects = check_polygon(clickpoint, utah);
+          var msg;
+          if (intersects) {
+            msg = "You clicked in Utah!";
+		  }
+		  else {
+		    msg = "That's not Utah!";
+		  }
+          var m = new mxn.Marker(clickpoint);
+          m.setInfoBubble(msg);
+    	  mapstraction.addMarker(m);
+	  	  m.openBubble();
+		});
+		
+    }
+    
+    function check_polygon(pt, polypts) {
+    	var bounds = get_poly_bounds(polypts);
+    	var bpoly = BoundingBox_to_Polyline(bounds);
+
+    	//mapstraction.addPolyline(bpoly);
+    	// Put together from the answer to this question:
+    	// http://stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
+    	if (bounds.contains(pt)) {
+    		var e = ((bounds.ne.lat - bounds.sw.lat) / 100);
+    		var pt2 = new mxn.LatLonPoint(bounds.sw.lat - e, pt.lon);
+    		var tmpoly = new mxn.Polyline([pt, pt2]);
+    		mapstraction.addPolyline(tmpoly);
+    		
+    		var intersections = 0;
+    		for (var i = 1; i < polypts.length; i++) {
+	        	var seg11 = polypts[i-1];
+	        	var seg12 = polypts[i];
+	        	
+	        	if (check_intersection(seg11, seg12, pt, pt2)) {
+	        	  //mapstraction.addPolylineWithData(new Polyline([seg11, seg12]), {"color": "red"});
+	        	  intersections++;
+	        	}
+      		}
+			return (intersections % 2 == 1);
+    	}
+    	
+    	return false;
+    }
+    function get_poly_bounds(polypts) {
+      var minlat = polypts[0].lat;
+      var maxlat = minlat;
+      var minlon = polypts[1].lon;
+      var maxlon = minlon;
+      
+      for (var i = 1; i < polypts.length; i++) {
+        var pt = polypts[i];
+        if (pt.lat > maxlat) {
+          maxlat = pt.lat;
+        }
+        if (pt.lon > maxlon) {
+          maxlon = pt.lon;
+        }
+        if (pt.lat < minlat) {
+          minlat = pt.lat;
+        }
+        if (pt.lon < minlon) {
+          minlon = pt.lon;
+        }
+      }
+      return new mxn.BoundingBox(minlat, minlon, maxlat, maxlon);
+    }
+    
+    function create_lines() {
+        box = new mxn.BoundingBox(37.5, -122.8, 37.9, -122.2);
+		
+		var line11 = box.sw;
+		var line12 = box.ne;
+		var line21 = new mxn.LatLonPoint(box.ne.lat, box.sw.lon);
+		var line22 = new mxn.LatLonPoint(box.sw.lat, box.ne.lon);
+				
+		var pol1 = new Polyline([line11, line12]);
+		mapstraction.addPolyline(pol1);
+		
+		var pol2 = new Polyline([line21, line22]);
+		mapstraction.addPolyline(pol2);
+		
+		var intersects = check_intersection(line11, line12, line21, line22);
+		alert('These lines intersect? ' + intersects);
+    }
+
+	function check_intersection(A, B, C, D) {
+		var londiff1 = B.lon - A.lon;
+		var latdiff1 = B.lat - A.lat;
+		var londiff2 = D.lon - C.lon;
+		var latdiff2 = D.lat - C.lat;
+		
+		// Make sure lines aren't parallel
+		if (londiff2 * latdiff1 - latdiff2 * londiff1 != 0) {
+		  var segtest1 = (londiff1 * (C.lat - A.lat) + latdiff1 * (A.lon - C.lon)) / (londiff2 * latdiff1 - latdiff2 * londiff1);
+		  var segtest2 = (londiff2 * (A.lat - C.lat) + latdiff2 * (C.lon - A.lon)) / (latdiff2 * londiff1 - londiff2 * latdiff1);
+
+	      if (segtest1 >= 0 && segtest1 <= 1 && segtest2 >= 0 && segtest2 <= 1) {
+	        return true;
+	      }
+	    }
+	    return false;
+	}
+
+	function check_intersection_orig(line11, line12, line21, line22) {
+		// Translated from VB:
+		// http://www.vb-helper.com/howto_segments_intersect.html
+		var x1 = line11.lon;
+		var y1 = line11.lat;
+		var x2 = line12.lon;
+		var y2 = line12.lat;
+		var a1 = line21.lon;
+		var b1 = line21.lat;
+		var a2 = line22.lon;
+		var b2 = line22.lat;
+		
+		var dx = x2 - x1;
+		var dy = y2 - y1;
+		var da = a2 - a1;
+		var db = b2 - b1;
+		if (da * dy - db * dx == 0) {
+		  // parallel
+		  return false;
+		}
+		
+		var s = (dx * (b1 - y1) + dy * (x1 - a1)) / (da * dy - db * dx);
+		var t = (da * (y1 - b1) + db * (a1 - x1)) / (db * dx - da * dy);
+		
+		var intersects = (s >= 0 && s <= 1 && t >= 0 && t <= 1);
+		return intersects;
+	}
+    
+    
+    function manual_check_bounds(pt, box) {
+      return pt.lat >= box.sw.lat && pt.lat <= box.ne.lat && abslon(pt.lon) >= abslon(box.sw.lon) && abslon(pt.lon) <= abslon(box.ne.lon);
+    }
+    
+    function BoundingBox_to_Polyline(box) {
+      var points = [box.sw, new mxn.LatLonPoint(box.ne.lat, box.sw. lon), box.ne, new mxn.LatLonPoint(box.sw.lat, box.ne.lon), new mxn.LatLonPoint(box.sw.lat, box.sw.lon-.0001)];
+      var poly = new mxn.Polyline(points);
+      return poly;
+    }
+	function abslon(lon)
+	{
+		if (lon < 0) {
+			lon = 360 - Math.abs(lon);
+		}
+		return lon;
+	}
+
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

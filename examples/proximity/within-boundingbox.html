@@ -1,0 +1,61 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Find if Click Point is Within BoundingBox</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+    </style>
+    <script type="text/javascript">
+	var mapstraction;
+	var box;
+    function create_map() {
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
+        box = new mxn.BoundingBox(37.5, -122.8, 37.9, -122.2);
+        mapstraction.setCenterAndZoom(new mxn.LatLonPoint(37.7740486,-122.4101883), 9);
+        mapstraction.addSmallControls();
+        //mapstraction.addEventListener('click', function(clickpoint) {
+        mapstraction.click.addHandler(function(event_type, event_source, event_args) {
+          var clickpoint = event_args.location;
+          var manual_result = manual_check_bounds(clickpoint, box);
+          var insidebox = box.contains(clickpoint);
+          var reply = "";
+          if (insidebox) {
+            reply = "You clicked inside the box! ";
+          }
+          else {
+            reply = "Sorry--You missed the box. ";
+          }
+          var mk = new mxn.Marker(clickpoint);
+          mk.setInfoBubble(reply);
+          mapstraction.addMarker(mk);
+          mk.openBubble();
+          //var replytext = document.createTextNode(reply);
+		  //mapstraction.currentElement.parentNode.appendChild(replytext);
+		});
+
+        var poly = BoundingBox_to_Polyline(box);
+        mapstraction.addPolyline(poly);
+    }
+    
+    
+    function manual_check_bounds(pt, box) {
+      return pt.lat >= box.sw.lat && pt.lat <= box.ne.lat && pt.lon >= box.sw.lon && pt.lon <= box.ne.lon;
+    }
+    
+    function BoundingBox_to_Polyline(box) {
+      var points = [box.sw, new mxn.LatLonPoint(box.ne.lat, box.sw. lon), box.ne, new mxn.LatLonPoint(box.sw.lat, box.ne.lon), new mxn.LatLonPoint(box.sw.lat, box.sw.lon-.0001)];
+      var poly = new mxn.Polyline(points);
+      return poly;
+    }
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

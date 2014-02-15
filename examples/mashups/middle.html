@@ -4,9 +4,8 @@
   <head>
     <title>Coffee in the Middle</title>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
-	<script type="text/javascript" src="http://api.maps.yahoo.com/ajaxymap?v=3.8&appid= 46rZ7hXV34HvIGPdyVuvmSIW8yOWwAKfJUpTuW06DINTgOsnHQ1BxdqLh.Bsjkf8BYQQ"></script>
-    <script type="text/javascript" charset="utf-8" src="js/mxn.js?(google)"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
     <style>
     div#mymap {
         width: 600px;
@@ -18,34 +17,17 @@
     var gdir;
 
     function create_map() {
-        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
         mapstraction.addControls({"zoom":"large"});
         mapstraction.setCenterAndZoom(new mxn.LatLonPoint(40, -92), 3);
-        
+
 		// Google-specific code for driving directions
-		gdir = new GDirections();
-	    GEvent.addListener(gdir, "load", findMidpoint);
-    	GEvent.addListener(gdir, "error", handleErrors);
+        gdir = new google.maps.DirectionsService();
     }
-	function findMidpoint() {
+	function findMidpoint(allpts, totaldist) {
 	    var midicon = 'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=star|00FF00';
-		var gpoly = gdir.getPolyline();
-		
-		// Find all points in Polyline
-		var allpts = [];
-		var vertexct = gpoly.getVertexCount();
-		for (var i=0; i < vertexct; i++) {
-		  var gpt = gpoly.getVertex(i);
-		  var pt = new mxn.LatLonPoint(gpt.lat(), gpt.lng());
-		  allpts.push(pt);
-		}
-		
-		// Add polyline to map
-		mapstraction.addPolyline(new mxn.Polyline(allpts));
-		mapstraction.autoCenterAndZoom();
-		
+
 		// Determine distance needed
-		var totaldist = gdir.getDistance().meters / 1000; // driving distance in km
 		var halfdist = totaldist / 2;
 		var distsofar = 0;
 		
@@ -63,7 +45,7 @@
 		    var bearing = get_bearing(pt1, pt2);
 		    var midpt = get_destination(pt1, distneeded, bearing);
 		    var midmk = new mxn.Marker(midpt);
-midmk.setIcon(midicon);
+            midmk.setIcon(midicon, [21,34]);
 		    mapstraction.addMarker(midmk);
 		    
 		    // Determine search radius
@@ -87,32 +69,30 @@ midmk.setIcon(midicon);
       mapstraction.removeAllPolylines();
       
       // Google-specific: load directions
-      var diropt = {getPolyline: true};
-      gdir.load("from: " + start + " to: " + end, diropt);
+	    var diropt = {
+          origin: start, 
+          destination: end,
+          travelMode: google.maps.DirectionsTravelMode.DRIVING
+	    };
+	    gdir.route(diropt, addDir);
 	}
-
-
-function handleErrors(){
-   if (gdir.getStatus().code == G_GEO_UNKNOWN_ADDRESS)
-     alert("No corresponding geographic location could be found for one of the specified addresses. This may be due to the fact that the address is relatively new, or it may be incorrect.\nError code: " + gdir.getStatus().code);
-   else if (gdir.getStatus().code == G_GEO_SERVER_ERROR)
-     alert("A geocoding or directions request could not be successfully processed, yet the exact reason for the failure is not known.\n Error code: " + gdir.getStatus().code);
-   
-   else if (gdir.getStatus().code == G_GEO_MISSING_QUERY)
-     alert("The HTTP q parameter was either missing or had no value. For geocoder requests, this means that an empty address was specified as input. For directions requests, this means that no query was specified in the input.\n Error code: " + gdir.getStatus().code);
-
-//   else if (gdir.getStatus().code == G_UNAVAILABLE_ADDRESS)  <--- Doc bug... this is either not defined, or Doc is wrong
-//     alert("The geocode for the given address or the route for the given directions query cannot be returned due to legal or contractual reasons.\n Error code: " + gdir.getStatus().code);
-     
-   else if (gdir.getStatus().code == G_GEO_BAD_KEY)
-     alert("The given key is either invalid or does not match the domain for which it was given. \n Error code: " + gdir.getStatus().code);
-
-   else if (gdir.getStatus().code == G_GEO_BAD_REQUEST)
-     alert("A directions request could not be successfully parsed.\n Error code: " + gdir.getStatus().code);
-    
-   else alert("An unknown error occurred.");
-   
-}
+	function addDir(response, status) {
+	  if (status == google.maps.DirectionsStatus.OK) {
+	    var gpts = response.routes[0].overview_path;
+	    var polypts = [];
+	    for (var i=0; i<gpts.length; i++) {
+	      polypts.push(new mxn.LatLonPoint(gpts[i].lat(), gpts[i].lng()));
+	    }
+	    // Add polyline to map
+	    var poly = new mxn.Polyline(polypts);
+	    mapstraction.addPolyline(poly);
+	    mapstraction.autoCenterAndZoom();
+	    // Find distance
+	    var dist = response.routes[0].legs[0].distance.value / 1000;
+	    // Find midpoint
+	    findMidpoint(polypts, dist);
+	  }
+	}
 
 function loadYelp(kw, loc, rad) {
   var url = "http://api.yelp.com/business_review_search";

@@ -1,0 +1,66 @@
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Show Local Results</title>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true&libraries=places"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
+    <style>
+    div#mymap {
+        width: 400px;
+        height: 350px;
+    }
+	.marker {
+		width: 250px; 
+		height: 40px; 
+		text-align: center;
+	}
+    </style>
+    <script type="text/javascript">
+	// googlev3-specific calls
+	var googlemap;
+	var infowindow;
+	
+	function create_map() {
+	  var latlon = new google.maps.LatLng(37.7740486,-122.4101883);
+	
+	  googlemap = new google.maps.Map(document.getElementById('mymap'), {
+		center: latlon,
+		zoom: 15
+	  });
+	
+	  var request = {
+		location: latlon,
+		radius: 500,
+		keyword: ['burritos']
+	  };
+	  infowindow = new google.maps.InfoWindow();
+	  var service = new google.maps.places.PlacesService(googlemap);
+	  service.nearbySearch(request, plotResults);
+	}
+	
+	function plotResults(results, status) {
+	  if (status == google.maps.places.PlacesServiceStatus.OK) {
+		for (var i = 0; i < results.length; i++) {
+		  createMarker(results[i]);
+		}
+	  }
+	}
+	
+	function createMarker(place) {
+	  var placeLoc = place.geometry.location;
+	  var marker = new google.maps.Marker({
+		map: googlemap,
+		position: place.geometry.location
+	  });
+	
+	  google.maps.event.addListener(marker, 'click', function() {
+		infowindow.setContent("<div class='marker'>" + place.name + "<br>" + place.vicinity + "</div>");
+		infowindow.open(googlemap, this);
+	  });
+	}
+    </script>
+  </head>
+  <body onload="create_map()">
+    <div id="mymap"></div>
+  </body>
+</html>

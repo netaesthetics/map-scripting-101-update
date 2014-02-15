@@ -4,8 +4,8 @@
   <head>
     <title>Weather Map Mashup</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl41B4LVy3qJUj-JbnPK3HBSr-NUsf9xrGbPTfPu5KGoAPzM_cxTyxApuWMtJuS3lHkfRHiYbZV_A9g" type="text/javascript"></script>
-    <script type="text/javascript" charset="utf-8" src="js/mxn.js?(google)"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/mxn.js?(googlev3)"></script>
     <style>
     div#mymap {
         width: 800px;
@@ -22,38 +22,38 @@
     }
     </style>
     <script type="text/javascript">
-      var weatherids = [
-        "USIL0225", // Chicago
-        "USTX0327", // Dallas
-        "USCO0105", // Denver
-        "USFL0316", // Miami
-        "USMN0503", // Minneapolis
-        "USTN0357", // Nashville
-        "USNY0996", // New York City
-        "USAZ0166", // Phoenix
-        "USMO0787", // Saint Louis
-        "USCA0987", // San Francisco
-        "USWA0395"  // Seattle
-      ];
-
+	var weatherids = [
+		"USMN0503"  // Minneapolis
+		,"USNY0996" // New York City
+		,"USWA0395" // Seattle
+		,"USTX0327" // Dallas
+		,"USCA0987" // San Francisco
+		,"USFL0316" // Miami
+		,"USIL0225" // Chicago
+		,"USMO0787" // St. Louis
+		,"USCO0105" // Denver
+		,"USAZ0166" // Phoenix
+		,"USTN0357" // Nashville
+	];
 
     var mapstraction;
     var center = new mxn.LatLonPoint(38,-98);
     var zoom = 4;
 
     function create_map() {
-        mapstraction = new mxn.Mapstraction('mymap', 'google');
+        mapstraction = new mxn.Mapstraction('mymap', 'googlev3');
         mapstraction.setCenterAndZoom(center, zoom);
         mapstraction.addControls({"zoom":"large"});
         $('#forecast').hide();
-        var pipeid = "Sbcb8u8J3hGNdOcopgt1Yg";
-        for (var i=0; i<weatherids.length; i++) {
-          var pipeurl = "http://pipes.yahoo.com/pipes/pipe.run?_id=" + pipeid;
-          pipeurl += "&_render=json&location=" + weatherids[i] + "&_callback=?";
-          jQuery.getJSON(pipeurl, add_weather);
+        for (var i in weatherids) {
+			get_weather(weatherids[i], add_weather);
         }
 	}
 	
+	function get_weather(loc, func)
+	{
+        jQuery.getJSON("http://pipes.yahoo.com/pipes/pipe.run?_id=SBcb8u8J3hGNdOcopgt1Yg&_render=json&location=" + loc + "&_callback=?", func);
+	}
 	function add_weather(data)
 	{
 		jQuery.each(data.value.items, function(i, item) {
@@ -77,16 +77,15 @@
         mapstraction.addMarker(marker);
         //var micon = marker.proprietary_marker.getIcon();
         //micon.imageMap = [0, 0, marker.iconSize[0], 0, marker.iconSize[0], marker.iconSize[1], 0, marker.iconSize[1], 0, 0];
-        marker.click.addHandler(marker_clicked);
+        marker.click.addHandler(function(event_name, event_source, event_args) {
+        	mapstraction.setCenterAndZoom(marker.location, 6);
+        	var bounds = mapstraction.getBounds();
+        	var diff = ((bounds.ne.lon - bounds.sw.lon)/4);
+        	mapstraction.setCenter(new mxn.LatLonPoint(mapstraction.getCenter().lat, bounds.ne.lon - diff));
+        	$('#forecast').show();
+        });
+        
         check_markers();
-	}
-	function marker_clicked(event_name, event_source, event_args) {
-		mapstraction.setCenterAndZoom(event_source.location, 6);
-        var bounds = mapstraction.getBounds();
-  		var diff = ((bounds.ne.lon - bounds.sw.lon)/4);
-  		mapstraction.setCenter(
-    		new mxn.LatLonPoint(mapstraction.getCenter().lat, bounds.ne.lon - diff));
-  		$('#forecast').show();
 	}
 	function check_markers()
 	{
